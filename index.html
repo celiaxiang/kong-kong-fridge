@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>空空冰箱 - AI 拯救剩菜🥬</title>
+    <style>
+        :root { --primary-color: rgba(253, 205, 131); --bg-color: #F9FFFA; }
+        body { font-family: 'PingFang SC', sans-serif; background-color: var(--bg-color); display: flex; justify-content: center; padding: 25px; }
+        .container { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+        h1 { color: #2d3436; text-align: center; margin-bottom: 5px; }
+        .subtitle { text-align: center; color: #b2bec3; margin-bottom: 25px; font-size: 14px; }
+        textarea { width: 100%; padding: 20px; border: 2px solid #dfe6e9; border-radius: 12px; box-sizing: border-box; outline: none; transition: 0.3s; resize: none; font-size: 16px; }
+        textarea:focus { border-color: var(--primary-color); }
+        button { width: 100%; background: var(--primary-color); color: white; border: none; padding: 20px; border-radius: 12px; margin-top: 15px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #00a087; transform: translateY(-2px); }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        #result-area { margin-top: 25px; padding: 25px; background: #fffcf0; border-left: 5px solid #f1c40f; border-radius: 8px; line-height: 1.8; color: #2d3436; display: none; white-space: pre-wrap; }
+        .loading { text-align: center; display: none; color: #636e72; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🛒 空空冰箱</h1>
+        <div class="subtitle">让剩下的食材都进盘子</div>
+        
+        <textarea id="ingredients" rows="3" placeholder="冰箱里还剩什么？比如：半个洋葱、一盒剩米饭、半块豆腐..."></textarea>
+        <button id="submit-btn" onclick="generateRecipe()">帮我加工！</button>
+
+        <div id="loading" class="loading"> 大厨正在看食材，构思菜谱中...</div>
+        <div id="result-area"></div>
+    </div>
+
+    <script>
+        async function generateRecipe() {
+            const ingredients = document.getElementById('ingredients').value;
+            const btn = document.getElementById('submit-btn');
+            const resultArea = document.getElementById('result-area');
+            const loading = document.getElementById('loading');
+
+            if (!ingredients) { alert('请输入食材哦！'); return; }
+
+            // --- 配置区域 ---
+            const apiKey = 'sk-0df719f3c3a14d3594a65d176aec3218'; // 👈 记得替换这里！
+            const apiUrl = 'https://api.deepseek.com/v1/chat/completions'; // 如果是其他模型请修改此地址
+
+            // 锁定按钮和显示加载状态
+            btn.disabled = true;
+            loading.style.display = 'block';
+            resultArea.style.display = 'none';
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify({
+                        model: "deepseek-chat", // 或者是你申请的具体模型名称
+                        messages: [
+                            {
+                                role: "system",
+                                content: "你是一位极简主义大厨。用户会提供冰箱剩下的食材，请你给出一个非常有创意、简单易做、且能清空这些食材的菜谱。包含：菜名、简短理由、步骤。"
+                            },
+                            {
+                                role: "user",
+                                content: `我有这些食材：${ingredients}。请帮我设计一个菜谱。`
+                            }
+                        ],
+                        temperature: 0.7
+                    })
+                });
+
+                const data = await response.json();
+                const recipe = data.choices[0].message.content;
+
+                // 显示结果
+                resultArea.innerText = recipe;
+                resultArea.style.display = 'block';
+            } catch (error) {
+                console.error(error);
+                alert('连接大厨失败了，检查一下密钥或网络吧！');
+            } finally {
+                btn.disabled = false;
+                loading.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>
