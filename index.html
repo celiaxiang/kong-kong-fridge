@@ -89,8 +89,7 @@
             if (!ingredientsInput.value.trim()) { alert('请输入食材哦！'); return; }
 
             // --- 核心配置 ---
-            const apiKey = 'sk-0df719f3c3a14d3594a65d176aec3218'.trim(); 
-            const apiUrl = 'https://api.deepseek.com/chat/completions'; 
+            const apiUrl = '/api/chat'; 
 
             // 状态切换
             btn.disabled = true;
@@ -101,8 +100,7 @@
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
+                        'Content-Type': 'application/json', 
                     },
                     body: JSON.stringify({
                         model: "deepseek-chat",
