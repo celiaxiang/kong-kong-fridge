@@ -33,59 +33,57 @@
 
     <script>
         async function generateRecipe() {
-            const ingredients = document.getElementById('ingredients').value;
-            const btn = document.getElementById('submit-btn');
-            const resultArea = document.getElementById('result-area');
-            const loading = document.getElementById('loading');
+    const ingredients = document.getElementById('ingredients').value;
+    const btn = document.getElementById('submit-btn');
+    const resultArea = document.getElementById('result-area');
+    const loading = document.getElementById('loading');
 
-            if (!ingredients) { alert('请输入食材哦！'); return; }
+    if (!ingredients) { alert('请输入食材哦！'); return; }
 
-            // --- 配置区域 ---
-            const apiKey = 'sk-0df719f3c3a14d3594a65d176aec3218'; // 👈 记得替换这里！
-            const apiUrl = 'https://api.deepseek.com/v1/chat/completions'; // 如果是其他模型请修改此地址
+    // --- 配置区域 ---
+    // 建议：检查一下你的 Key 复制是否完整
+    const apiKey = '这里填入你的密钥'; 
+    // 确保使用最新的 API 地址
+    const apiUrl = 'https://api.deepseek.com/chat/completions'; 
 
-            // 锁定按钮和显示加载状态
-            btn.disabled = true;
-            loading.style.display = 'block';
-            resultArea.style.display = 'none';
+    btn.disabled = true;
+    loading.style.display = 'block';
+    resultArea.style.display = 'none';
 
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${apiKey}`
-                    },
-                    body: JSON.stringify({
-                        model: "deepseek-chat", // 或者是你申请的具体模型名称
-                        messages: [
-                            {
-                                role: "system",
-                                content: "你是一位极简主义大厨。用户会提供冰箱剩下的食材，请你给出一个非常有创意、简单易做、且能清空这些食材的菜谱。包含：菜名、简短理由、步骤。"
-                            },
-                            {
-                                role: "user",
-                                content: `我有这些食材：${ingredients}。请帮我设计一个菜谱。`
-                            }
-                        ],
-                        temperature: 0.7
-                    })
-                });
+    try {
+        const response = await fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${apiKey}`
+            },
+            // 💡 关键修改点：确保 body 的格式和模型名称完全准确
+            body: JSON.stringify({
+                model: "deepseek-chat",
+                messages: [
+                    { role: "system", content: "你是一位精通‘清冰箱’的暖心大厨。" },
+                    { role: "user", content: `我有这些食材：${ingredients}。请帮我设计一个简单好吃的菜谱。` }
+                ],
+                stream: false
+            })
+        });
 
-                const data = await response.json();
-                const recipe = data.choices[0].message.content;
-
-                // 显示结果
-                resultArea.innerText = recipe;
-                resultArea.style.display = 'block';
-            } catch (error) {
-                console.error(error);
-                alert('连接大厨失败了，检查一下密钥或网络吧！');
-            } finally {
-                btn.disabled = false;
-                loading.style.display = 'none';
-            }
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error?.message || '请求失败');
         }
+
+        const data = await response.json();
+        resultArea.innerText = data.choices[0].message.content;
+        resultArea.style.display = 'block';
+    } catch (error) {
+        console.error(error);
+        alert('大厨闹情绪了：' + error.message);
+    } finally {
+        btn.disabled = false;
+        loading.style.display = 'none';
+    }
+}
     </script>
 </body>
 </html>
