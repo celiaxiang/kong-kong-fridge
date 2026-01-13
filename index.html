@@ -42,31 +42,28 @@
 
     // --- 配置区域 ---
     // 建议：检查一下你的 Key 复制是否完整
-    const apiKey = window.process?.env?.DEEPSEEK_KEY || '这里先留空'; 
-    // 确保使用最新的 API 地址
-    const apiUrl = 'https://api.deepseek.com/chat/completions'; 
+const apiKey = 'sk-0df719f3c3a14d3594a65d176aec3218'.trim(); // .trim() 会自动删掉不小心复制进去的空格
+const apiUrl = 'https://api.deepseek.com/chat/completions';
 
-    btn.disabled = true;
-    loading.style.display = 'block';
-    resultArea.style.display = 'none';
+// ... 之前的代码保持不变 ...
 
-    try {
-        const response = await fetch(apiUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            },
-            // 💡 关键修改点：确保 body 的格式和模型名称完全准确
-            body: JSON.stringify({
-                model: "deepseek-chat",
-                messages: [
-                    { role: "system", content: "你是一位精通‘清冰箱’的暖心大厨。" },
-                    { role: "user", content: `我有这些食材：${ingredients}。请帮我设计一个简单好吃的菜谱。` }
-                ],
-                stream: false
-            })
-        });
+try {
+    const response = await fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            // 注意：下面的 Bearer 后面有一个英文空格，不要删掉它
+            'Authorization': `Bearer ${apiKey}` 
+        },
+        body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [
+                { role: "system", content: "你是一位精通‘清冰箱’的暖心大厨。" },
+                { role: "user", content: `我有这些食材：${ingredients}。请帮我设计一个简单好吃的菜谱。` }
+            ],
+            stream: false
+        })
+    });
 
         if (!response.ok) {
             const errorData = await response.json();
