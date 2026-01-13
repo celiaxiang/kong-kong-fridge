@@ -42,7 +42,7 @@
 
     // --- 配置区域 ---
     // 建议：检查一下你的 Key 复制是否完整
-    const apiKey = '这里填入你的密钥'; 
+    const apiKey = window.process?.env?.DEEPSEEK_KEY || '这里先留空'; 
     // 确保使用最新的 API 地址
     const apiUrl = 'https://api.deepseek.com/chat/completions'; 
 
