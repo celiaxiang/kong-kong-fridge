@@ -3,94 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空空冰箱 - 智能厨房</title>
+    <title>🛒 空空冰箱 - 智能厨房</title>
+    <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --primary: #ffb900; 
-            --bg: #fffaf0; 
-            --text: #5d4037; 
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --dark-green: #132a13;    /* 深绿：文字 */
+            --forest: #31572c;         /* 森林绿：重点色 */
+            --leaf: #90a955;           /* 叶子绿：按钮/高亮 */
+            --pale-leaf: #ecf39e;     /* 浅色：背景强调 */
+            --bg-creme: #fffaf0;      /* 奶油色：全局背景 */
+            --white-glass: rgba(255, 255, 255, 0.7); /* 毛玻璃底色 */
         }
 
         body { 
-            font-family: 'PingFang SC', sans-serif; 
-            background-color: var(--bg); 
-            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='20'%3E🍅%3C/text%3E%3Ctext x='40' y='50' font-size='20'%3E🍳%3C/text%3E%3C/svg%3E");
-            margin: 0; display: flex; justify-content: center; min-height: 100vh; 
+            font-family: 'Noto Sans SC', sans-serif; 
+            background-color: var(--bg-creme); 
+            /* 背景加入可爱的小蔬果图标 */
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3Ctext x='80' y='20' font-size='20' opacity='0.3'%3E🍋%3C/text%3E%3C/svg%3E");
+            margin: 0; display: flex; justify-content: center; min-height: 100vh;
+            color: var(--dark-green);
         }
 
-        .container { width: 90%; max-width: 450px; padding: 40px 10px; text-align: center; }
+        .container { width: 92%; max-width: 450px; padding: 40px 10px; text-align: center; }
 
-        /* 输入区 */
+        /* 标题样式：使用站酷小薇体 */
+        h1 { 
+            font-family: 'ZCOOL XiaoWei', serif; 
+            font-size: 42px; 
+            color: var(--dark-green); 
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+        }
+        .subtitle { font-size: 14px; color: var(--forest); opacity: 0.8; margin-bottom: 30px; }
+
+        /* 输入框美化 */
         textarea { 
-            width: 100%; padding: 20px; border: 2px solid #ffe082; border-radius: 20px; 
-            background: #fffdf7; font-size: 16px; outline: none; transition: 0.3s; box-sizing: border-box;
-            color: var(--text);
+            width: 100%; padding: 22px; border: 3px solid var(--leaf); border-radius: 25px; 
+            background: var(--white-glass); backdrop-filter: blur(10px);
+            font-size: 16px; outline: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            box-sizing: border-box; color: var(--dark-green);
+            box-shadow: 0 8px 0 var(--leaf); /* 拟物化阴影 */
         }
+        textarea:focus { transform: translateY(4px); box-shadow: 0 4px 0 var(--leaf); }
 
-        .btn-group { margin-top: 20px; display: flex; gap: 10px; flex-direction: column; }
+        .btn-group { margin-top: 30px; }
         
-        button { 
-            padding: 16px; border-radius: 50px; border: none; font-weight: bold; 
-            cursor: pointer; transition: 0.3s; font-size: 16px; width: 100%;
+        /* 拟物化趣味按钮 */
+        .btn-main { 
+            background: var(--forest); color: #fff; border: none; padding: 18px; 
+            border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%;
+            cursor: pointer; box-shadow: 0 8px 0 var(--dark-green);
+            transition: all 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
+        /* 点击缩小效果 */
+        .btn-main:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--dark-green); }
+        .btn-main::before { content: '🔥'; }
 
-        .btn-main { background: var(--primary); color: white; box-shadow: 0 5px 15px rgba(255,185,0,0.3); }
-        .btn-main:hover { transform: translateY(-2px); background: #ffa000; }
-
-        /* 结果悬浮卡片 */
+        /* 结果卡片：毛玻璃风格 */
         #recipe-card { 
-            display: none; margin-top: 30px; background: var(--card-bg); border-radius: 24px; 
-            overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.1); 
-            animation: slideUp 0.5s ease; border: 1px solid #ffecb3;
+            display: none; margin-top: 40px; 
+            background: var(--white-glass); 
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-radius: 35px; overflow: hidden; 
+            box-shadow: 0 20px 40px rgba(19, 42, 19, 0.1); 
+            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            border: 2px solid rgba(255, 255, 255, 0.5);
         }
 
-        @keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        .recipe-img { width: 100%; height: 220px; object-fit: cover; background: #fdf2d2; }
+        .recipe-img { width: 100%; height: 240px; object-fit: cover; }
         
-        .recipe-content { padding: 20px; text-align: left; }
-        
-        .recipe-header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;
-        }
-
-        .recipe-title { font-size: 20px; font-weight: bold; color: var(--text); }
+        .recipe-content { padding: 25px; text-align: left; }
+        .recipe-header { display: flex; justify-content: space-between; align-items: center; }
+        .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 26px; color: var(--forest); }
         
         .toggle-btn { 
-            background: #fff3e0; color: var(--primary); border-radius: 50%; 
-            width: 32px; height: 32px; display: flex; align-items: center; 
-            justify-content: center; cursor: pointer; font-size: 12px; transition: 0.3s;
+            background: var(--pale-leaf); color: var(--forest); border-radius: 50%; 
+            width: 40px; height: 40px; display: flex; align-items: center; 
+            justify-content: center; cursor: pointer; transition: 0.3s;
         }
 
-        /* 隐藏的做法详情 */
         #recipe-detail { 
-            max-height: 0; overflow: hidden; transition: max-height 0.5s ease-out;
-            color: #6d4c41; font-size: 15px; line-height: 1.8;
+            max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
+            font-size: 15px; line-height: 1.8; color: var(--dark-green);
         }
+        #recipe-detail.show { max-height: 1000px; margin-top: 20px; }
 
-        #recipe-detail.show { max-height: 1000px; margin-top: 15px; padding-top: 5px; }
+        .retry-area { margin-top: 25px; text-align: center; }
+        .btn-secondary { 
+            background: transparent; color: var(--forest); 
+            border: 2px dashed var(--forest); padding: 12px 25px;
+            border-radius: 50px; font-size: 14px; cursor: pointer; transition: 0.3s;
+        }
+        .btn-secondary:hover { background: var(--pale-leaf); }
 
-        .retry-area { margin-top: 20px; padding-top: 15px; border-top: 1px solid #f0f0f0; }
-        .btn-secondary { background: #fff; color: #e67e22; border: 1px solid #ffe0b2; font-size: 14px; padding: 10px; }
-
-        .loading { display: none; margin-top: 20px; color: var(--primary); font-weight: bold; }
+        .loading { display: none; margin-top: 30px; font-size: 18px; color: var(--forest); animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🛒 空空冰箱 </h1>
-        <textarea id="ingredients" rows="3" placeholder="今天吃点什么呢..."></textarea>
+        <h1>🛒 空空冰箱</h1>
+        <div class="subtitle">让剩下的食材都进盘子 ✨</div>
+        
+        <textarea id="ingredients" rows="3" placeholder="冰箱里还有什么？快告诉我..."></textarea>
         
         <div class="btn-group">
             <button class="btn-main" onclick="startCooking()">开始加工！</button>
         </div>
 
-        <div id="loading" class="loading">👩‍🍳 在想了在想了...</div>
+        <div id="loading" class="loading">👩‍🍳 别催啦，大厨在想了...</div>
 
         <div id="recipe-card">
-            <img id="recipe-img" class="recipe-img" src="" alt="菜品图片">
+            <img id="recipe-img" class="recipe-img" src="" alt="美味预览">
             <div class="recipe-content">
                 <div class="recipe-header">
                     <span id="title-text" class="recipe-title"></span>
@@ -100,7 +126,7 @@
                 <div id="recipe-detail">
                     <div id="steps-content"></div>
                     <div class="retry-area">
-                        <button class="btn-secondary" onclick="generateAI()">不满意？交给 AI</button>
+                        <button class="btn-secondary" onclick="generateAI()">不满意？换个口味 🔄</button>
                     </div>
                 </div>
             </div>
@@ -108,90 +134,63 @@
     </div>
 
     <script>
-        // 1. 本地食谱库：你可以根据 images 文件夹里的图片名更新 img 路径
-        // 这里的关键词 ingredients 用于匹配用户的输入
         const localRecipes = [
             { 
                 name: "花椒鸡腿", 
                 keywords: ["花椒", "鸡腿", "生姜"], 
-                steps: "【主料】鸡腿1个、花椒、生姜、葱若干\n【步骤】\n1. 将花椒、生姜、葱、盐洒在鸡腿上，充分按摩。\n2. 鸡腿用保鲜膜放入冰箱冷藏一夜，进行腌制。\n3. 视鸡腿大小蒸15-20分钟即可出锅，或放入烤箱180度20-25分钟即可出锅。", 
-                img: "./images/chicken-leg.jpg" 
+                steps: "【主料】鸡腿1个、花椒、生姜、葱若干\n【步骤】\n1. 将花椒、生姜、葱、盐洒在鸡腿上，充分按摩。\n2. 放入冰箱冷藏一夜腌制。\n3. 蒸15-20分钟或烤箱180度25分钟即可。", 
+                img: "/images/chicken-leg.jpg" 
             },
             { 
                 name: "蛋包麻糍", 
                 keywords: ["鸡蛋", "糍粑", "麻糍"], 
-                steps: "【主料】鸡蛋2个，麻糍1块（手掌心大小）\n【步骤】\n1. 蛋液加入葱花和少量盐打散。\n2. 锅内喷2次油，放入麻糍慢慢煎软。\n3. 麻糍盛出来，锅内喷1次油，倒入半份蛋液在锅中铺开，在蛋液没有凝固时，加入麻糍，将蛋液裹在麻糍上。\n4. 麻糍盛出来，锅内喷1次油，倒入另外半份蛋液在锅中铺开，加入麻糍，将蛋液裹在麻糍另一边。煎好即可出锅", 
-                img: "./images/glutinous-rice-egg.jpg" 
+                steps: "【主料】鸡蛋2个，麻糍1块\n【步骤】\n1. 蛋液加葱花盐打散。\n2. 锅内喷油，放入麻糍煎软。\n3. 分两次裹上蛋液，煎至金黄酥脆即可。", 
+                img: "/images/glutinous-rice-egg.jpg" 
             }
         ];
 
-        let isAiMode = false;
-
-        // 核心入口：先找本地，找不到再找 AI
         function startCooking() {
             const input = document.getElementById('ingredients').value.trim();
-            if (!input) return alert("请先输入食材哦！");
+            if (!input) { alert("请输入食材哦！"); return; }
 
-            // 搜索本地
             const found = localRecipes.find(recipe => 
                 recipe.keywords.some(k => input.includes(k))
             );
 
             if (found) {
-                isAiMode = false;
                 showCard(found.name, found.steps, found.img);
             } else {
-                generateAI(); // 本地没找到，自动切换 AI
+                generateAI();
             }
         }
 
-        // 显示卡片
         function showCard(title, steps, imgSrc) {
-    // 1. 获取图片元素
-    const imgElement = document.getElementById('recipe-img');
-    const detail = document.getElementById('recipe-detail');
-    const arrow = document.getElementById('arrow');
-    
-    // 2. 逻辑：如果 imgSrc 为空（比如 AI 模式），强制指向绝对根路径的默认图
-    // 注意：这里去掉了 ./ 直接从 / 开始
-    const finalImgPath = imgSrc ? imgSrc : "/images/default-chef.jpg";
-    
-    console.log("尝试加载的最终路径是:", finalImgPath); // 调试用：按下 F12 可以看到路径
+            const imgElement = document.getElementById('recipe-img');
+            const detail = document.getElementById('recipe-detail');
+            const arrow = document.getElementById('arrow');
+            
+            imgElement.src = imgSrc ? imgSrc : "/images/default-chef.jpg";
+            
+            document.getElementById('recipe-card').style.display = 'block';
+            document.getElementById('title-text').innerText = title;
+            document.getElementById('steps-content').innerText = steps;
+            
+            detail.classList.remove('show');
+            arrow.innerText = "▼";
 
-    // 3. 赋值给图片标签
-    imgElement.src = finalImgPath;
-    
-    // 4. 更新文字和状态
-    document.getElementById('recipe-card').style.display = 'block';
-    document.getElementById('title-text').innerText = title;
-    document.getElementById('steps-content').innerText = steps;
-    
-    // 5. 初始状态为折叠
-    detail.classList.remove('show');
-    arrow.innerText = "▼";
+            document.getElementById('recipe-card').scrollIntoView({ behavior: 'smooth' });
+        }
 
-    // 6. 自动滚动到结果区，提升体验
-    document.getElementById('recipe-card').scrollIntoView({ behavior: 'smooth' });
-}
-
-        // 折叠控制
         function toggleDetails() {
             const detail = document.getElementById('recipe-detail');
             const arrow = document.getElementById('arrow');
-            if (detail.classList.contains('show')) {
-                detail.classList.remove('show');
-                arrow.innerText = "▼";
-            } else {
-                detail.classList.add('show');
-                arrow.innerText = "▲";
-            }
+            detail.classList.toggle('show');
+            arrow.innerText = detail.classList.contains('show') ? "▲" : "▼";
         }
 
-        // AI 生成逻辑（调用你之前的 /api/chat 中转站）
         async function generateAI() {
             const input = document.getElementById('ingredients').value;
             const loading = document.getElementById('loading');
-            
             loading.style.display = 'block';
             document.getElementById('recipe-card').style.display = 'none';
 
@@ -202,30 +201,23 @@
                     body: JSON.stringify({
                         model: "deepseek-chat",
                         messages: [
-                            { 
-                                role: "system", 
-                                content: "你是一位精通‘清冰箱’的暖心大厨。请根据食材给出一个菜谱。返回格式必须严格为：菜名: [名字] | 做法: [步骤，使用1.2.3.序号分行]" 
-                            },
-                            { 
-                                role: "user", 
-                                content: `我有：${input}。请给出一个创意菜谱，避开最普通的做法。` 
-                            }
+                            { role: "system", content: "你是一位精通‘清冰箱’的暖心大厨。返回格式严格为：菜名: [名字] | 做法: [步骤，1.2.3.序号分行]" },
+                            { role: "user", content: `我有：${input}。请给出一个创意菜谱。` }
                         ]
                     })
                 });
 
                 const data = await response.json();
                 const content = data.choices[0].message.content;
-
-                // 解析 AI 结果
                 const [titlePart, stepsPart] = content.split('|');
-                const title = titlePart.replace('菜名:', '').trim();
-                const steps = stepsPart.replace('做法:', '').trim();
-
-                isAiMode = true;
-                showCard(title, steps, null); // 使用一张固定的“AI 创意”本地图
+                
+                showCard(
+                    titlePart.replace('菜名:', '').trim(), 
+                    stepsPart.replace('做法:', '').trim(), 
+                    null
+                );
             } catch (error) {
-                alert("大厨没想好...");
+                alert("大厨开小差了...");
             } finally {
                 loading.style.display = 'none';
             }
