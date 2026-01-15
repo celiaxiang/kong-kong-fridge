@@ -16,13 +16,20 @@
         }
 
         body { 
-            font-family: 'Noto Sans SC', sans-serif; 
-            background-color: var(--bg-creme); 
-            /* 背景加入可爱的小蔬果图标 */
-            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3Ctext x='80' y='20' font-size='20' opacity='0.3'%3E🍋%3C/text%3E%3C/svg%3E");
-            margin: 0; display: flex; justify-content: center; min-height: 100vh;
-            color: var(--dark-green);
-        }
+    font-family: 'Noto Sans SC', sans-serif; 
+    /* 核心修改：使用线性渐变叠加在背景图上，给图标蒙上一层淡淡的奶油色 */
+    background: 
+        linear-gradient(rgba(255, 250, 240, 0.85), rgba(255, 250, 240, 0.85)), 
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3Ctext x='80' y='20' font-size='20' opacity='0.3'%3E🍋%3C/text%3E%3C/svg%3E");
+    background-color: var(--bg-creme); 
+    margin: 0; 
+    display: flex; 
+    justify-content: center; 
+    min-height: 100vh;
+    color: var(--dark-green);
+    /* 确保背景图案不随页面滚动，增加高级感 */
+    background-attachment: fixed; 
+}
 
         .container { width: 92%; max-width: 450px; padding: 40px 10px; text-align: center; }
 
@@ -34,7 +41,12 @@
             margin-bottom: 5px;
             letter-spacing: 2px;
         }
-        .subtitle { font-size: 14px; color: var(--forest); opacity: 0.8; margin-bottom: 30px; }
+        .subtitle { 
+    font-size: 15px; 
+    color: var(--forest); 
+    font-weight: 700; /* 增加粗细，让它在背景中更稳固 */
+    margin-bottom: 30px; 
+}
 
         /* 输入框美化 */
         textarea { 
