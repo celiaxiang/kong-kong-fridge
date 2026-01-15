@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>空空冰箱 Pro - 智能厨房</title>
+    <title>空空冰箱 - 智能厨房</title>
     <style>
         :root { 
             --primary: #ffb900; 
@@ -80,14 +80,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>🛒 空空冰箱 Pro</h1>
-        <textarea id="ingredients" rows="3" placeholder="输入你想处理的食材..."></textarea>
+        <h1>🛒 空空冰箱 </h1>
+        <textarea id="ingredients" rows="3" placeholder="今天吃点什么呢..."></textarea>
         
         <div class="btn-group">
-            <button class="btn-main" onclick="startCooking()">开启美味计划</button>
+            <button class="btn-main" onclick="startCooking()">开始加工！</button>
         </div>
 
-        <div id="loading" class="loading">👨‍🍳 大厨正在为您准备方案...</div>
+        <div id="loading" class="loading">👩‍🍳 在想了在想了...</div>
 
         <div id="recipe-card">
             <img id="recipe-img" class="recipe-img" src="" alt="菜品图片">
@@ -100,7 +100,7 @@
                 <div id="recipe-detail">
                     <div id="steps-content"></div>
                     <div class="retry-area">
-                        <button class="btn-secondary" onclick="generateAI()">不满意？试试 AI 创意做法</button>
+                        <button class="btn-secondary" onclick="generateAI()">不满意？交给 AI</button>
                     </div>
                 </div>
             </div>
@@ -112,16 +112,16 @@
         // 这里的关键词 ingredients 用于匹配用户的输入
         const localRecipes = [
             { 
-                name: "西红柿炒鸡蛋", 
-                keywords: ["西红柿", "鸡蛋", "番茄"], 
-                steps: "【主料】西红柿2个、鸡蛋3个\n【步骤】\n1. 鸡蛋打散炒熟盛出。\n2. 锅留底油炒西红柿至出汁。\n3. 加入鸡蛋、盐、少许白糖，大火翻炒均匀即可。", 
-                img: "./images/tomato-egg.jpg" 
+                name: "花椒鸡腿", 
+                keywords: ["花椒", "鸡腿", "生姜"], 
+                steps: "【主料】鸡腿1个、花椒、生姜、葱若干\n【步骤】\n1. 将花椒、生姜、葱、盐洒在鸡腿上，充分按摩。\n2. 鸡腿用保鲜膜放入冰箱冷藏一夜，进行腌制。\n3. 视鸡腿大小蒸15-20分钟即可出锅，或放入烤箱180度20-25分钟即可出锅。", 
+                img: "./images/chicken-leg.jpg" 
             },
             { 
-                name: "黄金蛋炒饭", 
-                keywords: ["米饭", "剩饭", "鸡蛋"], 
-                steps: "【主料】剩米饭1碗、鸡蛋2个\n【步骤】\n1. 蛋液拌入米饭抓匀。\n2. 热锅凉油，倒入米饭中火不断翻炒。\n3. 炒至米粒跳动，加葱花、盐调味。", 
-                img: "./images/fried-rice.jpg" 
+                name: "蛋包麻糍", 
+                keywords: ["鸡蛋", "糍粑", "麻糍"], 
+                steps: "【主料】鸡蛋2个，麻糍1块（手掌心大小）\n【步骤】\n1. 蛋液加入葱花和少量盐打散。\n2. 国内喷2次油，放入麻糍慢慢煎软。\n3. 麻糍盛出来，国内喷1次油，倒入半份蛋液在锅中铺开，在蛋液没有凝固时，加入麻糍，将蛋液裹在麻糍上。\n4. 麻糍盛出来，国内喷1次油，倒入另外半份蛋液在锅中铺开，加入麻糍，将蛋液裹在麻糍另一边。煎好即可出锅", 
+                img: "./images/glutinous-rice-egg.jpg" 
             }
         ];
 
@@ -225,7 +225,7 @@
                 isAiMode = true;
                 showCard(title, steps, null); // 使用一张固定的“AI 创意”本地图
             } catch (error) {
-                alert("大厨忙碌中，请稍后再试！");
+                alert("大厨没想好...");
             } finally {
                 loading.style.display = 'none';
             }
