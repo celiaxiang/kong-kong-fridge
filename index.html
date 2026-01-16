@@ -10,7 +10,7 @@
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
             --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
-            --gold: #FFB900; --gray: #d0d0d0;
+            --gold: #FFB900; --gray: #d0d0d0; --divider: rgba(0, 0, 0, 0.08); /* 半透明灰色分割 */
         }
 
         body { 
@@ -27,36 +27,22 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
+        /* 输入框样式优化：改为灰色分割 [需求 2] */
         textarea, .upload-input { 
-            width: 100%; padding: 22px; border: 2.5px solid var(--leaf); border-radius: 28px; 
+            width: 100%; padding: 22px; border: 1.5px solid var(--divider); border-radius: 28px; 
             background: white; font-size: 16px; outline: none; box-sizing: border-box;
-            box-shadow: 0 10px 20px rgba(144, 169, 85, 0.1); transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); transition: 0.3s;
         }
+        textarea:focus, .upload-input:focus { border-color: var(--leaf); box-shadow: 0 8px 20px rgba(144, 169, 85, 0.1); }
 
-        /* 重点修复：主按钮颜色  */
+        /* 修复按钮颜色与逻辑挂载 [cite: 14-16] */
         .btn-main { 
-            background-color: var(--forest) !important; 
-            color: white !important; 
-            border: none; 
-            padding: 18px; 
-            width: 100%;
-            border-radius: 50px; 
-            margin-top: 30px; 
-            font-weight: bold; 
-            font-size: 18px; 
-            cursor: pointer;
-            box-shadow: 0 6px 0 var(--dark-green); 
-            transition: 0.2s;
-            display: block;
-            text-align: center;
+            background-color: var(--forest) !important; color: white !important; 
+            border: none; padding: 18px; width: 100%; border-radius: 50px; 
+            margin-top: 30px; font-weight: bold; font-size: 18px; cursor: pointer;
+            box-shadow: 0 6px 0 var(--dark-green); transition: 0.2s; display: block; text-align: center;
         }
-        
-        /* 随机抽取页面的按钮使用叶子绿 */
-        #random-page .btn-main {
-            background-color: var(--leaf) !important;
-            box-shadow: 0 6px 0 #4f772d;
-        }
-
+        #random-page .btn-main { background-color: var(--leaf) !important; box-shadow: 0 6px 0 #4f772d; }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
         .btn-main:disabled { background: #ccc !important; box-shadow: 0 4px 0 #999 !important; cursor: not-allowed; opacity: 0.7; }
 
@@ -70,6 +56,7 @@
         .nav-item svg { width: 26px; height: 26px; fill: var(--forest); }
         .nav-text { font-size: 10px; margin-top: 6px; font-weight: 900; color: var(--forest); }
 
+        /* 结果遮罩 [cite: 23-28] */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
@@ -82,6 +69,7 @@
         }
         .back-btn svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 3; stroke-linecap: round; }
 
+        /* 菜谱卡片 [cite: 29-44] */
         .recipe-card { background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; }
         .recipe-img { width: 100%; height: 250px; object-fit: cover; }
         .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; }
@@ -91,7 +79,7 @@
         .fav-star.active svg { stroke: var(--gold); fill: var(--gold); }
 
         .expand-btn { margin: 15px 25px 15px auto; width: 45px; height: 32px; background: var(--pale-leaf); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .expand-btn svg { width: 18px; height: 18px; fill: var(--forest); transition: 0.3s; }
+        .expand-btn svg { width: 18px; height: 18px; fill: var(--forest); }
 
         .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 25px; background: #fafafa; }
         .recipe-detail-box.show { max-height: 2000px; padding: 25px; border-top: 1px solid #eee; }
@@ -115,7 +103,7 @@
     <div id="random-page" class="page">
         <h1>灵感盲盒</h1>
         <div class="welcome-msg">遇见未知的美味 🎲</div>
-        <button class="btn-main" onclick="getLucky()">随机抽取</button>
+        <button id="random-btn" class="btn-main" onclick="getLucky()">随机抽取</button>
         <div id="random-result" style="margin-top:40px; width:100%"></div>
     </div>
 
@@ -124,9 +112,9 @@
         <div class="welcome-msg">把你的私藏菜谱告诉家人们吧 📢</div>
         <div style="width:100%;">
             <input id="new-name" class="upload-input" placeholder="菜名（如：外婆红烧肉）">
-            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号隔开）">
-            <textarea id="new-steps" class="upload-input" rows="6" style="border-radius: 20px;" placeholder="制作步骤"></textarea>
-            <button class="btn-main" onclick="uploadRecipe()">分享给家人们</button>
+            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号隔开）" style="margin-top: 10px;">
+            <textarea id="new-steps" class="upload-input" rows="6" placeholder="制作步骤" style="margin-top: 10px; border-radius: 20px;"></textarea>
+            <button id="upload-btn" class="btn-main" onclick="uploadRecipe()">分享给家人们</button>
         </div>
     </div>
 
@@ -163,10 +151,12 @@
     </div>
 
     <script>
-        // --- 务必填入你的配置 ---
-        const SUPABASE_URL = '你的_PROJECT_URL';
-        const SUPABASE_KEY = '你的_ANON_KEY';
-        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- 核心修复：请务必填入你的配置 ---
+        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
+        
+        // 确保 supabase 变量全局唯一且初始化正确
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function switchPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -188,7 +178,8 @@
             loader.style.display = 'block';
 
             try {
-                const { data } = await _supabase.from('recipes').select('*');
+                // 修改：统一使用 client 变量名
+                const { data } = await client.from('recipes').select('*');
                 if (data) {
                     let matches = data.map(r => {
                         let hitCount = 0;
@@ -215,9 +206,11 @@
         function resetSearchUI() {
             const btn = document.getElementById('search-btn');
             const loader = document.getElementById('loading');
-            btn.disabled = false;
-            btn.innerText = "开始加工！";
-            loader.style.display = 'none';
+            if(btn) {
+                btn.disabled = false;
+                btn.innerText = "开始加工！";
+            }
+            if(loader) loader.style.display = 'none';
         }
 
         function renderResults(recipes) {
@@ -274,7 +267,7 @@
         }
 
         async function getLucky() {
-            const { data } = await _supabase.from('recipes').select('*');
+            const { data } = await client.from('recipes').select('*');
             if(data && data.length > 0) {
                 const r = data[Math.floor(Math.random() * data.length)];
                 document.getElementById('random-result').innerHTML = createCard(r);
@@ -289,7 +282,7 @@
             if(!name || !steps) return alert("请把信息填完整哦~");
 
             const kwArray = kwString.split(/[,，]/).map(s => s.trim());
-            const { error } = await _supabase.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
+            const { error } = await client.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
 
             if(!error) {
                 alert("🎉 分享成功！家人们刷新就能看到了");
