@@ -8,123 +8,133 @@
     <style>
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
-            --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.8);
+            --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.85);
+            --gold: #FFB900; --gray-icon: #ccc;
         }
 
         body { 
             font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-creme);
             background: linear-gradient(rgba(255, 250, 240, 0.9), rgba(255, 250, 240, 0.9)), 
-                        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3C/svg%3E");
+                        url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 20 L20 20 L25 40 L50 40' stroke='%2390a955' fill='none' opacity='0.2'/%3E%3Ccircle cx='60' cy='20' r='3' fill='%2331572c' opacity='0.1'/%3E%3C/svg%3E");
             margin: 0; padding: 0; color: var(--dark-green); overflow-x: hidden;
         }
 
-        /* 顶部导航内容区 */
-        .page { display: none; padding: 40px 20px 100px 20px; animation: fadeIn 0.3s ease; }
-        .page.active { display: block; }
+        /* 页面基础排版优化 */
+        .page { display: none; padding: 15vh 25px 120px 25px; animation: fadeIn 0.4s ease; box-sizing: border-box; min-height: 100vh; }
+        .page.active { display: flex; flex-direction: column; align-items: center; }
+        
+        h1 { font-family: 'ZCOOL XiaoWei', serif; font-size: 38px; margin-bottom: 10px; }
+        .welcome-msg { font-size: 14px; color: var(--leaf); margin-bottom: 40px; font-weight: bold; }
+
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 底部导航栏 */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
-            background: var(--white-glass); backdrop-filter: blur(15px);
-            display: flex; justify-content: space-around; align-items: center;
-            border-top: 1px solid rgba(49, 87, 44, 0.1); z-index: 1000;
-        }
-        .nav-item { 
-            display: flex; flex-direction: column; align-items: center; 
-            cursor: pointer; color: var(--forest); opacity: 0.5; transition: 0.3s;
-        }
-        .nav-item.active { opacity: 1; transform: translateY(-5px); }
-        .nav-icon { font-size: 24px; margin-bottom: 4px; }
-        .nav-text { font-size: 12px; font-weight: bold; }
-
-        /* 按钮与卡片风格 */
-        h1 { font-family: 'ZCOOL XiaoWei', serif; font-size: 32px; text-align: center; }
+        /* 输入区与按钮 */
+        .input-wrapper { width: 100%; position: relative; }
         textarea { 
-            width: 100%; padding: 20px; border: 3px solid var(--leaf); border-radius: 25px; 
+            width: 100%; padding: 22px; border: 2px solid var(--leaf); border-radius: 28px; 
             background: white; font-size: 16px; outline: none; box-sizing: border-box;
-            box-shadow: 0 6px 0 var(--leaf);
+            box-shadow: 0 10px 20px rgba(144, 169, 85, 0.1); transition: 0.3s;
         }
         .btn-main { 
-            background: var(--forest); color: white; border: none; padding: 15px; width: 100%;
-            border-radius: 50px; margin-top: 25px; font-weight: bold; box-shadow: 0 6px 0 var(--dark-green);
+            background: var(--forest); color: white; border: none; padding: 18px; width: 100%;
+            border-radius: 50px; margin-top: 30px; font-weight: bold; font-size: 18px;
+            box-shadow: 0 8px 15px rgba(49, 87, 44, 0.2); cursor: pointer;
         }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
 
-        /* 结果全屏覆盖层 */
+        /* 底部导航栏：轻盈图标 */
+        .bottom-nav {
+            position: fixed; bottom: 25px; left: 20px; right: 20px; height: 70px;
+            background: var(--white-glass); backdrop-filter: blur(20px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-radius: 35px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); z-index: 1000;
+        }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.3s; }
+        .nav-item svg { width: 24px; height: 24px; fill: none; stroke: var(--gray-icon); stroke-width: 2; transition: 0.3s; }
+        .nav-item.active svg { stroke: var(--forest); transform: scale(1.1); }
+        .nav-item.active .nav-text { color: var(--forest); opacity: 1; }
+        .nav-text { font-size: 11px; margin-top: 5px; opacity: 0.5; font-weight: bold; }
+
+        /* 结果层设计 */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
-            padding: 40px 20px; box-sizing: border-box; animation: slideUp 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
+            padding: 60px 20px 40px; box-sizing: border-box;
         }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .close-btn { position: fixed; top: 20px; right: 20px; font-size: 30px; cursor: pointer; z-index: 2100; }
+        .close-circle { 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 40px; height: 5px; background: #ddd; border-radius: 10px; cursor: pointer;
+        }
 
-        /* 菜谱卡片 */
+        /* 菜谱卡片交互优化 */
         .recipe-card {
-            background: white; border-radius: 30px; overflow: hidden; margin-bottom: 25px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;
+            background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; border: 1px solid #f0f0f0;
         }
-        .recipe-img { width: 100%; height: 200px; object-fit: cover; }
-        .recipe-info { padding: 20px; }
-        .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; margin-bottom: 10px; }
-        .recipe-steps { font-size: 14px; line-height: 1.6; color: #555; white-space: pre-wrap; display: none; }
-        .recipe-steps.show { display: block; }
+        .recipe-img { width: 100%; height: 250px; object-fit: cover; }
+        .recipe-info { padding: 25px; }
+        .recipe-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
         
-        .fav-btn {
-            position: absolute; bottom: 20px; right: 20px; font-size: 24px;
-            background: var(--pale-leaf); width: 45px; height: 45px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-        }
+        .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.5s ease; color: #666; font-size: 15px; line-height: 1.8; }
+        .recipe-detail-box.show { max-height: 2000px; padding-top: 15px; border-top: 1px dashed #eee; }
 
-        .loading { display: none; text-align: center; margin: 20px; font-weight: bold; }
+        .toggle-arrow { background: var(--pale-leaf); color: var(--forest); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; }
+        
+        .star-fav { cursor: pointer; transition: 0.3s; }
+        .star-fav svg { width: 28px; height: 28px; stroke-width: 2; }
     </style>
 </head>
 <body>
 
     <div id="search-page" class="page active">
-        <h1>🛒 空空冰箱</h1>
-        <textarea id="ingredients" rows="3" placeholder="今天冰箱里剩什么？"></textarea>
+        <h1>空空冰箱</h1>
+        <div class="welcome-msg">今天冰箱里有什么小惊喜？🥬</div>
+        <div class="input-wrapper">
+            <textarea id="ingredients" rows="3" placeholder="比如：两个鸡蛋，半块嫩豆腐..."></textarea>
+        </div>
         <button class="btn-main" onclick="processCooking()">开始加工！</button>
-        <div id="loading" class="loading">👨‍🍳 思考中...</div>
+        <div id="loading" class="loading" style="margin-top:20px; display:none;">👨‍🍳 大厨构思中...</div>
     </div>
 
     <div id="random-page" class="page">
-        <h1>🎲 灵感盲盒</h1>
-        <p style="text-align:center">不知道吃什么？摇一个！</p>
-        <button class="btn-main" onclick="getLucky()">试试手气</button>
-        <div id="random-result" style="margin-top:20px"></div>
+        <h1>灵感盲盒</h1>
+        <div class="welcome-msg">把晚餐交给运气吧 🎲</div>
+        <button class="btn-main" style="background:var(--leaf)" onclick="getLucky()">摇一个菜谱</button>
+        <div id="random-result" style="margin-top:40px; width:100%"></div>
     </div>
 
     <div id="fav-page" class="page">
-        <h1>⭐ 我的私房菜</h1>
-        <div id="fav-list"></div>
+        <h1>私房菜</h1>
+        <div class="welcome-msg">收藏的所有温暖瞬间 ⭐</div>
+        <div id="fav-list" style="width:100%"></div>
     </div>
 
     <div id="result-overlay">
-        <div class="close-btn" onclick="closeOverlay()">×</div>
+        <div class="close-circle" onclick="closeOverlay()"></div>
         <div id="result-content"></div>
+        <div style="text-align:center; padding: 20px; color: #999; font-size: 12px;">下拉或点击横条返回搜索</div>
     </div>
 
     <div class="bottom-nav">
         <div class="nav-item active" onclick="switchPage('search-page', this)">
-            <div class="nav-icon">🔍</div><div class="nav-text">找灵感</div>
+            <svg viewBox="0 0 24 24"><path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <div class="nav-text">找灵感</div>
         </div>
         <div class="nav-item" onclick="switchPage('random-page', this)">
-            <div class="nav-icon">🎲</div><div class="nav-text">碰运气</div>
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><circle cx="15.5" cy="15.5" r="1.5"/><circle cx="15.5" cy="8.5" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/></svg>
+            <div class="nav-text">碰运气</div>
         </div>
         <div class="nav-item" onclick="switchPage('fav-page', this)">
-            <div class="nav-icon">⭐</div><div class="nav-text">私房菜</div>
+            <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <div class="nav-text">私房菜</div>
         </div>
     </div>
 
     <script>
         const localRecipes = [
-            { id: 1, name: "花椒鸡腿", keywords: ["花椒", "鸡腿"], steps: "1.腌制2.蒸熟", img: "/images/chicken-leg.jpg" },
-            { id: 2, name: "蛋包麻糍", keywords: ["鸡蛋", "麻糍"], steps: "1.煎软2.裹蛋", img: "/images/glutinous-rice-egg.jpg" }
+            { id: 1, name: "花椒鸡腿", keywords: ["花椒", "鸡腿"], steps: "【主料】鸡腿1个、花椒、生姜...\n【步骤】\n1. 按摩鸡腿...\n2. 冷藏腌制...\n3. 蒸熟或烤熟。", img: "/images/chicken-leg.jpg" },
+            { id: 2, name: "蛋包麻糍", keywords: ["鸡蛋", "麻糍"], steps: "【主料】鸡蛋2个，麻糍1块...\n【步骤】\n1. 蛋液打散...\n2. 煎软麻糍...\n3. 裹上蛋液。", img: "/images/glutinous-rice-egg.jpg" }
         ];
 
-        // 页面切换逻辑
         function switchPage(pageId, element) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
@@ -133,99 +143,81 @@
             if(pageId === 'fav-page') renderFavs();
         }
 
-        // 核心加工逻辑：支持多结果和强匹配
         function processCooking() {
             const input = document.getElementById('ingredients').value.trim();
-            if(!input) return alert("输入食材呀！");
-            
-            // 匹配逻辑：计算匹配到的关键词数量
-            let matches = localRecipes.map(r => {
-                let hitCount = r.keywords.filter(k => input.includes(k)).length;
-                return { ...r, hitCount };
-            }).filter(r => r.hitCount > 0);
-
-            // 排序：匹配关键词越多的排在越前面（强匹配）
-            matches.sort((a, b) => b.hitCount - a.hitCount);
-
-            if(matches.length > 0) {
-                renderResults(matches);
-            } else {
-                generateAI(input);
-            }
+            if(!input) return;
+            let matches = localRecipes.map(r => ({ ...r, hit: r.keywords.filter(k => input.includes(k)).length })).filter(r => r.hit > 0);
+            matches.sort((a,b) => b.hit - a.hit);
+            if(matches.length > 0) renderResults(matches); else generateAI(input);
         }
 
-        // 渲染搜索结果（覆盖当前页）
-        function renderResults(recipes, isAi = false) {
-            const container = document.getElementById('result-content');
-            container.innerHTML = recipes.map(r => createCardHtml(r, isAi)).join('');
+        function renderResults(recipes) {
+            document.getElementById('result-content').innerHTML = recipes.map(r => createCard(r)).join('');
             document.getElementById('result-overlay').style.display = 'block';
         }
 
-        function createCardHtml(r, isAi) {
-            const isSaved = getSavedIds().includes(r.id || r.name);
+        function createCard(r) {
+            const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
+            const isFav = favs.some(f => f.name === r.name);
             return `
                 <div class="recipe-card">
                     <img class="recipe-img" src="${r.img || '/images/default-chef.jpg'}">
                     <div class="recipe-info">
-                        <div class="recipe-title">${r.name}</div>
-                        <div class="recipe-steps show">${r.steps}</div>
-                        <div class="fav-btn" onclick="toggleSave('${r.name}', '${r.steps}', '${r.img}', this)">
-                            ${isSaved ? '❤️' : '⭐'}
+                        <div class="recipe-header">
+                            <span class="recipe-title">${r.name}</span>
+                            <div class="star-fav" onclick="toggleSave('${r.name}', '${r.steps.replace(/'/g,"\\'")}', '${r.img}', this)">
+                                <svg viewBox="0 0 24 24" fill="${isFav ? 'var(--gold)' : 'none'}" stroke="${isFav ? 'var(--gold)' : '#ccc'}">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
                         </div>
+                        <div class="toggle-arrow" onclick="this.parentElement.nextElementSibling.classList.toggle('show'); this.innerText = this.innerText==='▼'?'▲':'▼';">▼</div>
                     </div>
-                </div>
-            `;
+                    <div class="recipe-detail-box">${r.steps}</div>
+                </div>`;
         }
 
-        // 收藏逻辑 (LocalStorage)
-        function toggleSave(name, steps, img, btn) {
+        function toggleSave(name, steps, img, dom) {
             let favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            const index = favs.findIndex(f => f.name === name);
-            if(index > -1) {
-                favs.splice(index, 1);
-                btn.innerText = '⭐';
+            const idx = favs.findIndex(f => f.name === name);
+            const svg = dom.querySelector('svg');
+            if(idx > -1) {
+                favs.splice(idx, 1);
+                svg.setAttribute('fill', 'none'); svg.setAttribute('stroke', '#ccc');
             } else {
-                favs.push({ name, steps, img, id: name });
-                btn.innerText = '❤️';
+                favs.push({ name, steps, img });
+                svg.setAttribute('fill', 'var(--gold)'); svg.setAttribute('stroke', 'var(--gold)');
             }
             localStorage.setItem('favRecipes', JSON.stringify(favs));
         }
 
-        function getSavedIds() {
-            return JSON.parse(localStorage.getItem('favRecipes') || '[]').map(f => f.id);
-        }
-
         function renderFavs() {
             const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            document.getElementById('fav-list').innerHTML = favs.length ? 
-                favs.map(r => createCardHtml(r)).join('') : "<p style='text-align:center'>还没收藏过菜谱哦~</p>";
+            document.getElementById('fav-list').innerHTML = favs.length ? favs.map(r => createCard(r)).join('') : "<p style='text-align:center; opacity:0.5;'>空空如也，快去收藏美味吧~</p>";
         }
 
-        // 随机推荐
         function getLucky() {
             const r = localRecipes[Math.floor(Math.random() * localRecipes.length)];
-            document.getElementById('random-result').innerHTML = createCardHtml(r);
+            document.getElementById('random-result').innerHTML = createCard(r);
         }
 
         function closeOverlay() { document.getElementById('result-overlay').style.display = 'none'; }
 
         async function generateAI(input) {
-            const loading = document.getElementById('loading');
-            loading.style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: "deepseek-chat",
-                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: [步骤]" },
-                                   { role: "user", content: `食材：${input}。` }]
+                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: [步骤]" }, { role: "user", content: `食材：${input}` }]
                     })
                 });
                 const data = await response.json();
                 const [title, steps] = data.choices[0].message.content.split('|');
-                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }], true);
-            } finally { loading.style.display = 'none'; }
+                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
+            } finally { document.getElementById('loading').style.display = 'none'; }
         }
     </script>
 </body>
