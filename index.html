@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 样式完全继承自你的备份代码 [cite: 1-45] */
+        [cite_start]/* 继承备份代码中的基础样式 [cite: 1-16] */
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
             --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
@@ -24,7 +24,7 @@
         .page { display: none; padding: 12vh 25px 120px 25px; animation: fadeIn 0.4s ease; box-sizing: border-box; min-height: 100vh; flex-direction: column; align-items: center; }
         .page.active { display: flex; }
         h1 { font-family: 'ZCOOL XiaoWei', serif; font-size: 38px; margin-bottom: 8px; }
-        .welcome-msg { font-size: 14px; color: var(--leaf); margin-bottom: 40px; font-weight: bold; }
+        .welcome-msg { font-size: 14px; color: var(--leaf); margin-bottom: 40px; font-weight: bold; text-align: center; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -33,25 +33,28 @@
             background: white; font-size: 16px; outline: none; box-sizing: border-box;
             box-shadow: 0 10px 20px rgba(144, 169, 85, 0.1); transition: 0.3s;
         }
+
+        /* 按钮锁定样式 [需求 3] */
         .btn-main { 
             background: var(--forest); color: white; border: none; padding: 18px; width: 100%;
             border-radius: 50px; margin-top: 30px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 6px 0 var(--dark-green); transition: 0.1s;
+            box-shadow: 0 6px 0 var(--dark-green); transition: 0.2s;
         }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
+        .btn-main:disabled { background: #ccc; box-shadow: 0 4px 0 #999; cursor: not-allowed; opacity: 0.7; transform: translateY(2px); }
 
-        /* 底部导航 [cite: 17-22] */
+        /* 底部导航栏增加至 4 个 Tab [需求 1] */
         .bottom-nav {
-            position: fixed; bottom: 25px; left: 20px; right: 20px; height: 75px;
+            position: fixed; bottom: 25px; left: 15px; right: 15px; height: 75px;
             background: white; border-radius: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); 
             display: flex; justify-content: space-around; align-items: center; z-index: 1000;
         }
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.3s; opacity: 0.4; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.3s; opacity: 0.35; flex: 1; }
         .nav-item.active { opacity: 1; transform: translateY(-3px); }
-        .nav-item svg { width: 28px; height: 28px; fill: var(--forest); }
-        .nav-text { font-size: 11px; margin-top: 6px; font-weight: 900; color: var(--forest); }
+        .nav-item svg { width: 26px; height: 26px; fill: var(--forest); }
+        .nav-text { font-size: 10px; margin-top: 6px; font-weight: 900; color: var(--forest); }
 
-        /* 全屏遮罩与返回 [cite: 23-28] */
+        [cite_start]/* 全屏遮罩与返回 [cite: 23-28] */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
@@ -62,33 +65,32 @@
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 2100; cursor: pointer;
         }
-        .back-btn svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+        .back-btn svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 3; stroke-linecap: round; }
 
-        /* 菜谱卡片 [cite: 29-44] */
+        [cite_start]/* 菜谱卡片 [cite: 29-44] */
         .recipe-card { background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; }
         .recipe-img { width: 100%; height: 250px; object-fit: cover; }
-        .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: center; }
+        .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; }
         .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; color: var(--forest); }
         
-        .fav-star { cursor: pointer; transition: 0.3s; }
-        .fav-star svg { width: 32px; height: 32px; stroke: var(--gray); stroke-width: 2.5; fill: none; stroke-linejoin: round; }
+        .fav-star svg { width: 32px; height: 32px; stroke: var(--gray); stroke-width: 2.5; fill: none; }
         .fav-star.active svg { stroke: var(--gold); fill: var(--gold); }
 
-        .expand-btn { margin: 0 25px 20px auto; width: 45px; height: 32px; background: var(--pale-leaf); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+        .expand-btn { margin: 15px 25px 15px auto; width: 45px; height: 32px; background: var(--pale-leaf); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .expand-btn svg { width: 18px; height: 18px; fill: var(--forest); transition: 0.3s; }
 
-        .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 25px; }
-        .recipe-detail-box.show { max-height: 2000px; padding: 10px 25px 25px; }
-        .detail-section { margin-bottom: 20px; }
+        .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 25px; background: #fafafa; }
+        .recipe-detail-box.show { max-height: 2000px; padding: 25px; border-top: 1px solid #eee; }
         .detail-label { font-weight: 900; color: var(--forest); display: block; margin-bottom: 8px; font-size: 16px; border-left: 5px solid var(--leaf); padding-left: 10px; }
         .detail-text { color: #555; line-height: 2; white-space: pre-line; font-size: 15px; }
 
-        /* 新增：贡献表单样式 */
-        .upload-card { background: white; padding: 25px; border-radius: 30px; margin-top: 20px; border: 2.5px dashed var(--leaf); width: 100%; box-sizing: border-box; }
-        .upload-input { width: 100%; margin-bottom: 15px; padding: 15px; border-radius: 15px; border: 1px solid #eee; box-sizing: border-box; font-family: inherit; }
+        /* 分享页专用样式 [需求 2] */
+        .upload-input { width: 100%; margin-bottom: 15px; padding: 18px; border-radius: 20px; border: 2px solid var(--pale-leaf); box-sizing: border-box; font-family: inherit; font-size: 15px; outline: none; }
+        .upload-input:focus { border-color: var(--leaf); }
         
-        .loading { display: none; margin-top: 20px; font-weight: bold; color: var(--forest); animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        /* 文案优化 [需求 3] */
+        .loading { display: none; margin-top: 25px; font-weight: bold; color: var(--forest); animation: pulse 1.2s infinite; font-size: 15px; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
     </style>
 </head>
 <body>
@@ -96,30 +98,33 @@
     <div id="search-page" class="page active">
         <h1>空空冰箱</h1>
         <div class="welcome-msg">把剩下的食材变成惊喜 ✨</div>
-        <textarea id="ingredients" rows="3" placeholder="冰箱里还有什么？"></textarea>
-        <button class="btn-main" onclick="processCooking()">开始加工！</button>
-        <div id="loading" class="loading">👨‍🍳 正在同步云端灵感...</div>
+        <textarea id="ingredients" rows="3" placeholder="比如：鸡蛋，西红柿..."></textarea>
+        <button id="search-btn" class="btn-main" onclick="processCooking()">开始加工</button>
+        <div id="loading" class="loading">AI大厨在想了，在想了... 🧑‍🍳</div>
     </div>
 
     <div id="random-page" class="page">
         <h1>灵感盲盒</h1>
-        <div class="welcome-msg">转动转盘，遇见美味 🎲</div>
+        <div class="welcome-msg">遇见未知的美味 🎲</div>
         <button class="btn-main" style="background:var(--leaf); box-shadow: 0 6px 0 #4f772d;" onclick="getLucky()">随机抽取</button>
         <div id="random-result" style="margin-top:40px; width:100%"></div>
+    </div>
+
+    <div id="share-page" class="page">
+        <h1>分享美味</h1>
+        <div class="welcome-msg">把你的私藏菜谱告诉家人们吧 📢</div>
+        <div style="width:100%;">
+            <input id="new-name" class="upload-input" placeholder="菜名（如：外婆红烧肉）">
+            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号隔开）">
+            <textarea id="new-steps" class="upload-input" rows="6" placeholder="制作步骤"></textarea>
+            <button class="btn-main" onclick="uploadRecipe()">分享给家人们</button>
+        </div>
     </div>
 
     <div id="fav-page" class="page">
         <h1>私房菜</h1>
         <div class="welcome-msg">这里藏着你的美食记忆 ⭐</div>
         <div id="fav-list" style="width:100%"></div>
-        
-        <div class="upload-card">
-            <h3 style="font-family: 'ZCOOL XiaoWei'; color: var(--forest); margin-top: 0;">📢 贡献新菜谱</h3>
-            <input id="new-name" class="upload-input" placeholder="菜名（如：西红柿炒蛋）">
-            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号分隔）">
-            <textarea id="new-steps" class="upload-input" rows="4" placeholder="【主料】\n...\n【步骤】\n1..."></textarea>
-            <button class="btn-main" style="margin-top:0; padding:12px; font-size:15px;" onclick="uploadRecipe()">上传到云端</button>
-        </div>
     </div>
 
     <div id="result-overlay">
@@ -138,16 +143,20 @@
             <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="15" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/></svg>
             <div class="nav-text">盲盒</div>
         </div>
+        <div class="nav-item" onclick="switchPage('share-page', this)">
+            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            <div class="nav-text">分享</div>
+        </div>
         <div class="nav-item" onclick="switchPage('fav-page', this)">
             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-            <div class="nav-text">私房菜</div>
+            <div class="nav-text">收藏</div>
         </div>
     </div>
 
     <script>
-        // --- 请在此填入你的 Supabase 配置 ---
-        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
+        // --- 请填入你的配置 ---
+        const SUPABASE_URL = '你的_PROJECT_URL';
+        const SUPABASE_KEY = '你的_ANON_KEY';
         const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function switchPage(pageId, element) {
@@ -158,50 +167,51 @@
             if(pageId === 'fav-page') renderFavs();
         }
 
-        // 核心修改：云端动态搜索
+        // 修改：处理部分匹配与按钮锁定 [需求 3]
         async function processCooking() {
-    const input = document.getElementById('ingredients').value.trim();
-    if(!input) return;
-    document.getElementById('loading').style.display = 'block';
+            const input = document.getElementById('ingredients').value.trim();
+            if(!input) return;
 
-    try {
-        // 1. 从云端获取所有菜谱数据 [cite: 73, 74]
-        const { data, error } = await _supabase.from('recipes').select('*');
-        
-        if (data) {
-            // 2. 执行部分匹配与权重计算逻辑 
-            let matches = data.map(recipe => {
-                let hitCount = 0;
-                
-                // 遍历菜谱中的每一个关键词（如 "鸡蛋1个"）
-                recipe.keywords.forEach(keyword => {
-                    // 部分匹配逻辑：
-                    // 用户输入的包含关键词（如输入了"鸡蛋1个"搜索"鸡蛋"）
-                    // 或者关键词包含了用户输入的（如输入了"鸡蛋"搜索"鸡蛋1个"）
-                    if (input.includes(keyword) || keyword.includes(input)) {
-                        hitCount++;
+            const btn = document.getElementById('search-btn');
+            const loader = document.getElementById('loading');
+            
+            // 1. 锁定按钮并显示文案 [需求 3]
+            btn.disabled = true;
+            btn.innerText = "正在寻找灵感...";
+            loader.style.display = 'block';
+
+            try {
+                const { data } = await _supabase.from('recipes').select('*');
+                if (data) {
+                    let matches = data.map(r => {
+                        let hitCount = 0;
+                        r.keywords.forEach(k => {
+                            if (input.includes(k) || k.includes(input)) hitCount++;
+                        });
+                        return { ...r, hitCount };
+                    }).filter(r => r.hitCount > 0);
+                    
+                    matches.sort((a,b) => b.hitCount - a.hitCount);
+                    if(matches.length > 0) {
+                        renderResults(matches);
+                        resetSearchUI(); // 成功后重置
+                    } else {
+                        await generateAI(input); // AI逻辑内也会处理重置
                     }
-                });
-
-                return { ...recipe, hitCount };
-            }).filter(recipe => recipe.hitCount > 0); // 至少要含有1个搜索关键词 [需求 2]
-
-            // 3. 强相关排序：按命中关键词数量降序排列 [需求 2, cite: 52]
-            matches.sort((a, b) => b.hitCount - a.hitCount);
-
-            if(matches.length > 0) {
-                renderResults(matches); // 展示结果 [cite: 53, 54]
-            } else {
-                generateAI(input); // 都没有则求助 AI [cite: 72-76]
+                }
+            } catch(e) { 
+                console.error(e); 
+                resetSearchUI();
             }
         }
-    } catch(e) { 
-        console.error("搜索出错:", e); 
-        alert("云端连接异常，请检查网络");
-    } finally { 
-        document.getElementById('loading').style.display = 'none'; 
-    }
-}
+
+        function resetSearchUI() {
+            const btn = document.getElementById('search-btn');
+            const loader = document.getElementById('loading');
+            btn.disabled = false;
+            btn.innerText = "开始加工！";
+            loader.style.display = 'none';
+        }
 
         function renderResults(recipes) {
             document.getElementById('result-content').innerHTML = recipes.map(r => createCard(r)).join('');
@@ -218,7 +228,7 @@
                 formattedSteps = `<div class="detail-section"><span class="detail-label">主料清单</span><div class="detail-text">${parts[0].replace('【主料】','')}</div></div>
                                   <div class="detail-section"><span class="detail-label">烹饪步骤</span><div class="detail-text">${parts[1] || ''}</div></div>`;
             } else {
-                formattedSteps = `<div class="detail-section"><span class="detail-label">做法详情</span><div class="detail-text">${r.steps}</div></div>`;
+                formattedSteps = `<div class="detail-section"><span class="detail-label">制作步骤</span><div class="detail-text">${r.steps}</div></div>`;
             }
 
             return `
@@ -231,9 +241,7 @@
                         </div>
                     </div>
                     <div class="recipe-detail-box">${formattedSteps}</div>
-                    <div class="expand-btn" onclick="toggleCard(this)">
-                        <svg viewBox="0 0 24 24" class="arrow-svg"><path d="M7 10l5 5 5-5"/></svg>
-                    </div>
+                    <div class="expand-btn" onclick="toggleCard(this)"><svg viewBox="0 0 24 24" class="arrow-svg"><path d="M7 10l5 5 5-5"/></svg></div>
                 </div>`;
         }
 
@@ -247,23 +255,17 @@
         function toggleSave(name, steps, img, dom) {
             let favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
             const idx = favs.findIndex(f => f.name === name);
-            if(idx > -1) {
-                favs.splice(idx, 1);
-                dom.classList.remove('active');
-            } else {
-                favs.push({ name, steps, img });
-                dom.classList.add('active');
-            }
+            if(idx > -1) { favs.splice(idx, 1); dom.classList.remove('active'); }
+            else { favs.push({ name, steps, img }); dom.classList.add('active'); }
             localStorage.setItem('favRecipes', JSON.stringify(favs));
             if(document.getElementById('fav-page').classList.contains('active')) renderFavs();
         }
 
         function renderFavs() {
             const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            document.getElementById('fav-list').innerHTML = favs.length ? favs.map(r => createCard(r)).join('') : "<p style='text-align:center; opacity:0.3; margin-top:50px; font-weight:bold;'>这里还是空空的...</p>";
+            document.getElementById('fav-list').innerHTML = favs.length ? favs.map(r => createCard(r)).join('') : "<p style='text-align:center; opacity:0.3; margin-top:50px;'>这里还是空空的...</p>";
         }
 
-        // 修改：随机推荐也走云端
         async function getLucky() {
             const { data } = await _supabase.from('recipes').select('*');
             if(data && data.length > 0) {
@@ -272,7 +274,7 @@
             }
         }
 
-        // 新增：全员同步上传
+        // 修改：分享功能 [需求 2]
         async function uploadRecipe() {
             const name = document.getElementById('new-name').value;
             const kwString = document.getElementById('new-keywords').value;
@@ -281,23 +283,20 @@
             if(!name || !steps) return alert("请把信息填完整哦~");
 
             const kwArray = kwString.split(/[,，]/).map(s => s.trim());
-
-            const { error } = await _supabase
-                .from('recipes')
-                .insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
+            const { error } = await _supabase.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
 
             if(!error) {
-                alert("🎉 上传成功！全员可见！");
+                alert("🎉 好耶！家人们也能复刻你的美味了");
                 document.getElementById('new-name').value = '';
                 document.getElementById('new-keywords').value = '';
                 document.getElementById('new-steps').value = '';
-            } else { alert("上传失败：" + error.message); }
+                switchPage('search-page', document.querySelectorAll('.nav-item')[0]); // 成功后跳回首页
+            } else { alert("分享失败：" + error.message); }
         }
 
         function closeOverlay() { document.getElementById('result-overlay').style.display = 'none'; }
 
         async function generateAI(input) {
-            document.getElementById('loading').style.display = 'block';
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
@@ -310,8 +309,7 @@
                 const data = await response.json();
                 const [title, steps] = data.choices[0].message.content.split('|');
                 renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
-            } catch(e) { console.error(e); }
-            finally { document.getElementById('loading').style.display = 'none'; }
+            } finally { resetSearchUI(); }
         }
     </script>
 </body>
