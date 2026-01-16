@@ -2,237 +2,230 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🛒 空空冰箱 - 智能厨房</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🛒 空空冰箱 Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root { 
-            --dark-green: #132a13;    /* 深绿：文字 */
-            --forest: #31572c;         /* 森林绿：重点色 */
-            --leaf: #90a955;           /* 叶子绿：按钮/高亮 */
-            --pale-leaf: #ecf39e;     /* 浅色：背景强调 */
-            --bg-creme: #fffaf0;      /* 奶油色：全局背景 */
-            --white-glass: rgba(255, 255, 255, 0.7); /* 毛玻璃底色 */
+            --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
+            --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.8);
         }
 
         body { 
-    font-family: 'Noto Sans SC', sans-serif; 
-    /* 核心修改：使用线性渐变叠加在背景图上，给图标蒙上一层淡淡的奶油色 */
-    background: 
-        linear-gradient(rgba(255, 250, 240, 0.85), rgba(255, 250, 240, 0.85)), 
-        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3Ctext x='80' y='20' font-size='20' opacity='0.3'%3E🍋%3C/text%3E%3C/svg%3E");
-    background-color: var(--bg-creme); 
-    margin: 0; 
-    display: flex; 
-    justify-content: center; 
-    min-height: 100vh;
-    color: var(--dark-green);
-    /* 确保背景图案不随页面滚动，增加高级感 */
-    background-attachment: fixed; 
-}
-
-        .container { width: 92%; max-width: 450px; padding: 40px 10px; text-align: center; }
-
-        /* 标题样式：使用站酷小薇体 */
-        h1 { 
-            font-family: 'ZCOOL XiaoWei', serif; 
-            font-size: 42px; 
-            color: var(--dark-green); 
-            margin-bottom: 5px;
-            letter-spacing: 2px;
+            font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-creme);
+            background: linear-gradient(rgba(255, 250, 240, 0.9), rgba(255, 250, 240, 0.9)), 
+                        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='10' y='30' font-size='24'%3E🥦%3C/text%3E%3Ctext x='60' y='70' font-size='24'%3E🥕%3C/text%3E%3C/svg%3E");
+            margin: 0; padding: 0; color: var(--dark-green); overflow-x: hidden;
         }
-        .subtitle { 
-    font-size: 15px; 
-    color: var(--forest); 
-    font-weight: 700; /* 增加粗细，让它在背景中更稳固 */
-    margin-bottom: 30px; 
-}
 
-        /* 输入框美化 */
+        /* 顶部导航内容区 */
+        .page { display: none; padding: 40px 20px 100px 20px; animation: fadeIn 0.3s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 底部导航栏 */
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; height: 80px;
+            background: var(--white-glass); backdrop-filter: blur(15px);
+            display: flex; justify-content: space-around; align-items: center;
+            border-top: 1px solid rgba(49, 87, 44, 0.1); z-index: 1000;
+        }
+        .nav-item { 
+            display: flex; flex-direction: column; align-items: center; 
+            cursor: pointer; color: var(--forest); opacity: 0.5; transition: 0.3s;
+        }
+        .nav-item.active { opacity: 1; transform: translateY(-5px); }
+        .nav-icon { font-size: 24px; margin-bottom: 4px; }
+        .nav-text { font-size: 12px; font-weight: bold; }
+
+        /* 按钮与卡片风格 */
+        h1 { font-family: 'ZCOOL XiaoWei', serif; font-size: 32px; text-align: center; }
         textarea { 
-            width: 100%; padding: 22px; border: 3px solid var(--leaf); border-radius: 25px; 
-            background: var(--white-glass); backdrop-filter: blur(10px);
-            font-size: 16px; outline: none; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            box-sizing: border-box; color: var(--dark-green);
-            box-shadow: 0 8px 0 var(--leaf); /* 拟物化阴影 */
+            width: 100%; padding: 20px; border: 3px solid var(--leaf); border-radius: 25px; 
+            background: white; font-size: 16px; outline: none; box-sizing: border-box;
+            box-shadow: 0 6px 0 var(--leaf);
         }
-        textarea:focus { transform: translateY(4px); box-shadow: 0 4px 0 var(--leaf); }
-
-        .btn-group { margin-top: 30px; }
-        
-        /* 拟物化趣味按钮 */
         .btn-main { 
-            background: var(--forest); color: #fff; border: none; padding: 18px; 
-            border-radius: 50px; font-size: 18px; font-weight: bold; width: 100%;
-            cursor: pointer; box-shadow: 0 8px 0 var(--dark-green);
-            transition: all 0.1s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--forest); color: white; border: none; padding: 15px; width: 100%;
+            border-radius: 50px; margin-top: 25px; font-weight: bold; box-shadow: 0 6px 0 var(--dark-green);
         }
-        /* 点击缩小效果 */
-        .btn-main:active { transform: translateY(6px); box-shadow: 0 2px 0 var(--dark-green); }
-        .btn-main::before { content: '🔥'; }
+        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
 
-        /* 结果卡片：毛玻璃风格 */
-        #recipe-card { 
-            display: none; margin-top: 40px; 
-            background: var(--white-glass); 
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border-radius: 35px; overflow: hidden; 
-            box-shadow: 0 20px 40px rgba(19, 42, 19, 0.1); 
-            animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+        /* 结果全屏覆盖层 */
+        #result-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
+            padding: 40px 20px; box-sizing: border-box; animation: slideUp 0.4s cubic-bezier(0.1, 0.7, 0.1, 1);
         }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .close-btn { position: fixed; top: 20px; right: 20px; font-size: 30px; cursor: pointer; z-index: 2100; }
 
-        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
-
-        .recipe-img { width: 100%; height: 240px; object-fit: cover; }
+        /* 菜谱卡片 */
+        .recipe-card {
+            background: white; border-radius: 30px; overflow: hidden; margin-bottom: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #eee; position: relative;
+        }
+        .recipe-img { width: 100%; height: 200px; object-fit: cover; }
+        .recipe-info { padding: 20px; }
+        .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; margin-bottom: 10px; }
+        .recipe-steps { font-size: 14px; line-height: 1.6; color: #555; white-space: pre-wrap; display: none; }
+        .recipe-steps.show { display: block; }
         
-        .recipe-content { padding: 25px; text-align: left; }
-        .recipe-header { display: flex; justify-content: space-between; align-items: center; }
-        .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 26px; color: var(--forest); }
-        
-        .toggle-btn { 
-            background: var(--pale-leaf); color: var(--forest); border-radius: 50%; 
-            width: 40px; height: 40px; display: flex; align-items: center; 
-            justify-content: center; cursor: pointer; transition: 0.3s;
+        .fav-btn {
+            position: absolute; bottom: 20px; right: 20px; font-size: 24px;
+            background: var(--pale-leaf); width: 45px; height: 45px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
         }
 
-        #recipe-detail { 
-            max-height: 0; overflow: hidden; transition: max-height 0.5s ease;
-            font-size: 15px; line-height: 1.8; color: var(--dark-green);
-        }
-        #recipe-detail.show { max-height: 1000px; margin-top: 20px; }
-
-        .retry-area { margin-top: 25px; text-align: center; }
-        .btn-secondary { 
-            background: transparent; color: var(--forest); 
-            border: 2px dashed var(--forest); padding: 12px 25px;
-            border-radius: 50px; font-size: 14px; cursor: pointer; transition: 0.3s;
-        }
-        .btn-secondary:hover { background: var(--pale-leaf); }
-
-        .loading { display: none; margin-top: 30px; font-size: 18px; color: var(--forest); animation: pulse 1s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .loading { display: none; text-align: center; margin: 20px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="container">
+
+    <div id="search-page" class="page active">
         <h1>🛒 空空冰箱</h1>
-        <div class="subtitle">让剩下的食材都进盘子 ✨</div>
-        
-        <textarea id="ingredients" rows="3" placeholder="冰箱里还有什么？快告诉我..."></textarea>
-        
-        <div class="btn-group">
-            <button class="btn-main" onclick="startCooking()">开始加工！</button>
+        <textarea id="ingredients" rows="3" placeholder="今天冰箱里剩什么？"></textarea>
+        <button class="btn-main" onclick="processCooking()">开始加工！</button>
+        <div id="loading" class="loading">👨‍🍳 思考中...</div>
+    </div>
+
+    <div id="random-page" class="page">
+        <h1>🎲 灵感盲盒</h1>
+        <p style="text-align:center">不知道吃什么？摇一个！</p>
+        <button class="btn-main" onclick="getLucky()">试试手气</button>
+        <div id="random-result" style="margin-top:20px"></div>
+    </div>
+
+    <div id="fav-page" class="page">
+        <h1>⭐ 我的私房菜</h1>
+        <div id="fav-list"></div>
+    </div>
+
+    <div id="result-overlay">
+        <div class="close-btn" onclick="closeOverlay()">×</div>
+        <div id="result-content"></div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchPage('search-page', this)">
+            <div class="nav-icon">🔍</div><div class="nav-text">找灵感</div>
         </div>
-
-        <div id="loading" class="loading">👩‍🍳 别催啦，大厨在想了...</div>
-
-        <div id="recipe-card">
-            <img id="recipe-img" class="recipe-img" src="" alt="美味预览">
-            <div class="recipe-content">
-                <div class="recipe-header">
-                    <span id="title-text" class="recipe-title"></span>
-                    <div id="arrow" class="toggle-btn" onclick="toggleDetails()">▼</div>
-                </div>
-                
-                <div id="recipe-detail">
-                    <div id="steps-content"></div>
-                    <div class="retry-area">
-                        <button class="btn-secondary" onclick="generateAI()">不满意？换个口味 🔄</button>
-                    </div>
-                </div>
-            </div>
+        <div class="nav-item" onclick="switchPage('random-page', this)">
+            <div class="nav-icon">🎲</div><div class="nav-text">碰运气</div>
+        </div>
+        <div class="nav-item" onclick="switchPage('fav-page', this)">
+            <div class="nav-icon">⭐</div><div class="nav-text">私房菜</div>
         </div>
     </div>
 
     <script>
         const localRecipes = [
-            { 
-                name: "花椒鸡腿", 
-                keywords: ["花椒", "鸡腿", "生姜"], 
-                steps: "【主料】鸡腿1个、花椒、生姜、葱若干\n【步骤】\n1. 将花椒、生姜、葱、盐洒在鸡腿上，充分按摩。\n2. 放入冰箱冷藏一夜腌制。\n3. 蒸15-20分钟或烤箱180度25分钟即可。", 
-                img: "/images/chicken-leg.jpg" 
-            },
-            { 
-                name: "蛋包麻糍", 
-                keywords: ["鸡蛋", "糍粑", "麻糍"], 
-                steps: "【主料】鸡蛋2个，麻糍1块\n【步骤】\n1. 蛋液加葱花盐打散。\n2. 锅内喷油，放入麻糍煎软。\n3. 分两次裹上蛋液，煎至金黄酥脆即可。", 
-                img: "/images/glutinous-rice-egg.jpg" 
-            }
+            { id: 1, name: "花椒鸡腿", keywords: ["花椒", "鸡腿"], steps: "1.腌制2.蒸熟", img: "/images/chicken-leg.jpg" },
+            { id: 2, name: "蛋包麻糍", keywords: ["鸡蛋", "麻糍"], steps: "1.煎软2.裹蛋", img: "/images/glutinous-rice-egg.jpg" }
         ];
 
-        function startCooking() {
+        // 页面切换逻辑
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+            if(pageId === 'fav-page') renderFavs();
+        }
+
+        // 核心加工逻辑：支持多结果和强匹配
+        function processCooking() {
             const input = document.getElementById('ingredients').value.trim();
-            if (!input) { alert("请输入食材哦！"); return; }
+            if(!input) return alert("输入食材呀！");
+            
+            // 匹配逻辑：计算匹配到的关键词数量
+            let matches = localRecipes.map(r => {
+                let hitCount = r.keywords.filter(k => input.includes(k)).length;
+                return { ...r, hitCount };
+            }).filter(r => r.hitCount > 0);
 
-            const found = localRecipes.find(recipe => 
-                recipe.keywords.some(k => input.includes(k))
-            );
+            // 排序：匹配关键词越多的排在越前面（强匹配）
+            matches.sort((a, b) => b.hitCount - a.hitCount);
 
-            if (found) {
-                showCard(found.name, found.steps, found.img);
+            if(matches.length > 0) {
+                renderResults(matches);
             } else {
-                generateAI();
+                generateAI(input);
             }
         }
 
-        function showCard(title, steps, imgSrc) {
-            const imgElement = document.getElementById('recipe-img');
-            const detail = document.getElementById('recipe-detail');
-            const arrow = document.getElementById('arrow');
-            
-            imgElement.src = imgSrc ? imgSrc : "/images/default-chef.jpg";
-            
-            document.getElementById('recipe-card').style.display = 'block';
-            document.getElementById('title-text').innerText = title;
-            document.getElementById('steps-content').innerText = steps;
-            
-            detail.classList.remove('show');
-            arrow.innerText = "▼";
-
-            document.getElementById('recipe-card').scrollIntoView({ behavior: 'smooth' });
+        // 渲染搜索结果（覆盖当前页）
+        function renderResults(recipes, isAi = false) {
+            const container = document.getElementById('result-content');
+            container.innerHTML = recipes.map(r => createCardHtml(r, isAi)).join('');
+            document.getElementById('result-overlay').style.display = 'block';
         }
 
-        function toggleDetails() {
-            const detail = document.getElementById('recipe-detail');
-            const arrow = document.getElementById('arrow');
-            detail.classList.toggle('show');
-            arrow.innerText = detail.classList.contains('show') ? "▲" : "▼";
+        function createCardHtml(r, isAi) {
+            const isSaved = getSavedIds().includes(r.id || r.name);
+            return `
+                <div class="recipe-card">
+                    <img class="recipe-img" src="${r.img || '/images/default-chef.jpg'}">
+                    <div class="recipe-info">
+                        <div class="recipe-title">${r.name}</div>
+                        <div class="recipe-steps show">${r.steps}</div>
+                        <div class="fav-btn" onclick="toggleSave('${r.name}', '${r.steps}', '${r.img}', this)">
+                            ${isSaved ? '❤️' : '⭐'}
+                        </div>
+                    </div>
+                </div>
+            `;
         }
 
-        async function generateAI() {
-            const input = document.getElementById('ingredients').value;
+        // 收藏逻辑 (LocalStorage)
+        function toggleSave(name, steps, img, btn) {
+            let favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
+            const index = favs.findIndex(f => f.name === name);
+            if(index > -1) {
+                favs.splice(index, 1);
+                btn.innerText = '⭐';
+            } else {
+                favs.push({ name, steps, img, id: name });
+                btn.innerText = '❤️';
+            }
+            localStorage.setItem('favRecipes', JSON.stringify(favs));
+        }
+
+        function getSavedIds() {
+            return JSON.parse(localStorage.getItem('favRecipes') || '[]').map(f => f.id);
+        }
+
+        function renderFavs() {
+            const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
+            document.getElementById('fav-list').innerHTML = favs.length ? 
+                favs.map(r => createCardHtml(r)).join('') : "<p style='text-align:center'>还没收藏过菜谱哦~</p>";
+        }
+
+        // 随机推荐
+        function getLucky() {
+            const r = localRecipes[Math.floor(Math.random() * localRecipes.length)];
+            document.getElementById('random-result').innerHTML = createCardHtml(r);
+        }
+
+        function closeOverlay() { document.getElementById('result-overlay').style.display = 'none'; }
+
+        async function generateAI(input) {
             const loading = document.getElementById('loading');
             loading.style.display = 'block';
-            document.getElementById('recipe-card').style.display = 'none';
-
             try {
                 const response = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         model: "deepseek-chat",
-                        messages: [
-                            { role: "system", content: "你是一位精通‘清冰箱’的暖心大厨。返回格式严格为：菜名: [名字] | 做法: [步骤，1.2.3.序号分行]" },
-                            { role: "user", content: `我有：${input}。请给出一个创意菜谱。` }
-                        ]
+                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: [步骤]" },
+                                   { role: "user", content: `食材：${input}。` }]
                     })
                 });
-
                 const data = await response.json();
-                const content = data.choices[0].message.content;
-                const [titlePart, stepsPart] = content.split('|');
-                
-                showCard(
-                    titlePart.replace('菜名:', '').trim(), 
-                    stepsPart.replace('做法:', '').trim(), 
-                    null
-                );
-            } catch (error) {
-                alert("大厨开小差了...");
-            } finally {
-                loading.style.display = 'none';
-            }
+                const [title, steps] = data.choices[0].message.content.split('|');
+                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }], true);
+            } finally { loading.style.display = 'none'; }
         }
     </script>
 </body>
