@@ -160,25 +160,48 @@
 
         // 核心修改：云端动态搜索
         async function processCooking() {
-            const input = document.getElementById('ingredients').value.trim();
-            if(!input) return;
-            document.getElementById('loading').style.display = 'block';
+    const input = document.getElementById('ingredients').value.trim();
+    if(!input) return;
+    document.getElementById('loading').style.display = 'block';
 
-            try {
-                // 从云端获取所有菜谱
-                const { data, error } = await _supabase.from('recipes').select('*');
-                if (data) {
-                    let matches = data.map(r => ({ 
-                        ...r, 
-                        hit: r.keywords.filter(k => input.includes(k)).length 
-                    })).filter(r => r.hit > 0);
-                    
-                    matches.sort((a,b) => b.hit - a.hit);
-                    if(matches.length > 0) renderResults(matches); else generateAI(input);
-                }
-            } catch(e) { console.error("Cloud Error:", e); }
-            finally { document.getElementById('loading').style.display = 'none'; }
+    try {
+        // 1. 从云端获取所有菜谱数据 [cite: 73, 74]
+        const { data, error } = await _supabase.from('recipes').select('*');
+        
+        if (data) {
+            // 2. 执行部分匹配与权重计算逻辑 
+            let matches = data.map(recipe => {
+                let hitCount = 0;
+                
+                // 遍历菜谱中的每一个关键词（如 "鸡蛋1个"）
+                recipe.keywords.forEach(keyword => {
+                    // 部分匹配逻辑：
+                    // 用户输入的包含关键词（如输入了"鸡蛋1个"搜索"鸡蛋"）
+                    // 或者关键词包含了用户输入的（如输入了"鸡蛋"搜索"鸡蛋1个"）
+                    if (input.includes(keyword) || keyword.includes(input)) {
+                        hitCount++;
+                    }
+                });
+
+                return { ...recipe, hitCount };
+            }).filter(recipe => recipe.hitCount > 0); // 至少要含有1个搜索关键词 [需求 2]
+
+            // 3. 强相关排序：按命中关键词数量降序排列 [需求 2, cite: 52]
+            matches.sort((a, b) => b.hitCount - a.hitCount);
+
+            if(matches.length > 0) {
+                renderResults(matches); // 展示结果 [cite: 53, 54]
+            } else {
+                generateAI(input); // 都没有则求助 AI [cite: 72-76]
+            }
         }
+    } catch(e) { 
+        console.error("搜索出错:", e); 
+        alert("云端连接异常，请检查网络");
+    } finally { 
+        document.getElementById('loading').style.display = 'none'; 
+    }
+}
 
         function renderResults(recipes) {
             document.getElementById('result-content').innerHTML = recipes.map(r => createCard(r)).join('');
