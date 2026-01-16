@@ -35,13 +35,44 @@
         }
 
         /* 按钮锁定样式 [需求 3] */
-        .btn-main { 
-            background: var(--forest); color: white; border: none; padding: 18px; width: 100%;
-            border-radius: 50px; margin-top: 30px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 6px 0 var(--dark-green); transition: 0.2s;
-        }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
-        .btn-main:disabled { background: #ccc; box-shadow: 0 4px 0 #999; cursor: not-allowed; opacity: 0.7; transform: translateY(2px); }
+        /* 统一按钮样式，确保所有页面的主按钮颜色正确 [cite: 14-16] */
+.btn-main, 
+#share-page .btn-main, 
+#random-page .btn-main { 
+    background-color: var(--forest) !important; /* 强制使用森林绿 [cite: 2] */
+    color: white !important; 
+    border: none; 
+    padding: 18px; 
+    width: 100%;
+    border-radius: 50px; 
+    margin-top: 30px; 
+    font-weight: bold; 
+    font-size: 18px; 
+    cursor: pointer;
+    box-shadow: 0 6px 0 var(--dark-green); /* 拟物化深色阴影 [cite: 1, 15] */
+    transition: 0.2s;
+    display: block;
+}
+
+/* 针对“随机抽取”页面的特殊覆盖修复 [cite: 46] */
+#random-page .btn-main {
+    background-color: var(--leaf) !important; /* 随机页使用稍浅的叶子绿以示区别 [cite: 2] */
+    box-shadow: 0 6px 0 #4f772d;
+}
+
+/* 按钮点击反馈 */
+.btn-main:active { 
+    transform: translateY(4px); 
+    box-shadow: 0 2px 0 var(--dark-green); 
+}
+
+/* 按钮锁定状态（AI思考中） */
+.btn-main:disabled { 
+    background: #ccc !important; 
+    box-shadow: 0 4px 0 #999 !important; 
+    cursor: not-allowed; 
+    opacity: 0.7; 
+}
 
         /* 底部导航栏增加至 4 个 Tab [需求 1] */
         .bottom-nav {
