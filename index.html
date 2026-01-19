@@ -7,10 +7,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        /* 保持原有根变量 [cite: 1, 2, 3] */
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
             --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
-            --gold: #FFB900; --gray: #d0d0d0; --divider: rgba(0, 0, 0, 0.08); /* 半透明灰色分割 */
+            --gold: #FFB900; --gray: #d0d0d0; --divider: rgba(0, 0, 0, 0.08);
         }
 
         body { 
@@ -27,15 +28,13 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 输入框样式优化：改为灰色分割 [需求 2] */
         textarea, .upload-input { 
             width: 100%; padding: 22px; border: 1.5px solid var(--divider); border-radius: 28px; 
             background: white; font-size: 16px; outline: none; box-sizing: border-box;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); transition: 0.3s;
         }
-        textarea:focus, .upload-input:focus { border-color: var(--leaf); box-shadow: 0 8px 20px rgba(144, 169, 85, 0.1); }
 
-        /* 修复按钮颜色与逻辑挂载 [cite: 14-16] */
+        /* 主按钮样式 [cite: 14, 15, 16] */
         .btn-main { 
             background-color: var(--forest) !important; color: white !important; 
             border: none; padding: 18px; width: 100%; border-radius: 50px; 
@@ -45,6 +44,9 @@
         #random-page .btn-main { background-color: var(--leaf) !important; box-shadow: 0 6px 0 #4f772d; }
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
         .btn-main:disabled { background: #ccc !important; box-shadow: 0 4px 0 #999 !important; cursor: not-allowed; opacity: 0.7; }
+
+        /* 新增：提示文字样式 */
+        .ai-hint { margin-top: 15px; font-size: 12px; color: rgba(19, 42, 19, 0.4); font-weight: 500; }
 
         .bottom-nav {
             position: fixed; bottom: 25px; left: 15px; right: 15px; height: 75px;
@@ -56,7 +58,7 @@
         .nav-item svg { width: 26px; height: 26px; fill: var(--forest); }
         .nav-text { font-size: 10px; margin-top: 6px; font-weight: 900; color: var(--forest); }
 
-        /* 结果遮罩 [cite: 23-28] */
+        /* 结果遮罩与卡片细节 [cite: 23-44] */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
@@ -69,18 +71,14 @@
         }
         .back-btn svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 3; stroke-linecap: round; }
 
-        /* 菜谱卡片 [cite: 29-44] */
         .recipe-card { background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; }
         .recipe-img { width: 100%; height: 250px; object-fit: cover; }
         .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; }
         .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; color: var(--forest); }
-        
         .fav-star svg { width: 32px; height: 32px; stroke: var(--gray); stroke-width: 2.5; fill: none; }
         .fav-star.active svg { stroke: var(--gold); fill: var(--gold); }
-
         .expand-btn { margin: 15px 25px 15px auto; width: 45px; height: 32px; background: var(--pale-leaf); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
         .expand-btn svg { width: 18px; height: 18px; fill: var(--forest); }
-
         .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 25px; background: #fafafa; }
         .recipe-detail-box.show { max-height: 2000px; padding: 25px; border-top: 1px solid #eee; }
         .detail-label { font-weight: 900; color: var(--forest); display: block; margin-bottom: 8px; font-size: 16px; border-left: 5px solid var(--leaf); padding-left: 10px; }
@@ -97,7 +95,8 @@
         <div class="welcome-msg">把剩下的食材变成惊喜 ✨</div>
         <textarea id="ingredients" rows="3" placeholder="比如：鸡蛋，西红柿..."></textarea>
         <button id="search-btn" class="btn-main" onclick="processCooking()">开始加工！</button>
-        <div id="loading" class="loading">AI大厨在想了，在想了... 👨‍🍳</div>
+        <div class="ai-hint">可以输入一些天马行空的关键词哦！交给AI 🎨</div>
+        <div id="loading" class="loading">AI大厨在想了，在想了... 🧑‍🍳</div>
     </div>
 
     <div id="random-page" class="page">
@@ -137,7 +136,7 @@
             <div class="nav-text">搜索</div>
         </div>
         <div class="nav-item" onclick="switchPage('random-page', this)">
-            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="15" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="9" cy="15" r="1.5"/></svg>
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="15" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/></svg>
             <div class="nav-text">盲盒</div>
         </div>
         <div class="nav-item" onclick="switchPage('share-page', this)">
@@ -151,11 +150,9 @@
     </div>
 
     <script>
-        // --- 核心修复：请务必填入你的配置 ---
-        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
-        
-        // 确保 supabase 变量全局唯一且初始化正确
+        // --- 请务必填入你的配置 ---
+        const SUPABASE_URL = '你的_PROJECT_URL';
+        const SUPABASE_KEY = '你的_ANON_KEY';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         function switchPage(pageId, element) {
@@ -169,16 +166,13 @@
         async function processCooking() {
             const input = document.getElementById('ingredients').value.trim();
             if(!input) return;
-
             const btn = document.getElementById('search-btn');
             const loader = document.getElementById('loading');
-            
             btn.disabled = true;
             btn.innerText = "正在寻找灵感...";
             loader.style.display = 'block';
 
             try {
-                // 修改：统一使用 client 变量名
                 const { data } = await client.from('recipes').select('*');
                 if (data) {
                     let matches = data.map(r => {
@@ -188,7 +182,6 @@
                         });
                         return { ...r, hitCount };
                     }).filter(r => r.hitCount > 0);
-                    
                     matches.sort((a,b) => b.hitCount - a.hitCount);
                     if(matches.length > 0) {
                         renderResults(matches);
@@ -206,10 +199,7 @@
         function resetSearchUI() {
             const btn = document.getElementById('search-btn');
             const loader = document.getElementById('loading');
-            if(btn) {
-                btn.disabled = false;
-                btn.innerText = "开始加工！";
-            }
+            if(btn) { btn.disabled = false; btn.innerText = "开始加工！"; }
             if(loader) loader.style.display = 'none';
         }
 
@@ -221,7 +211,6 @@
         function createCard(r) {
             const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
             const isFav = favs.some(f => f.name === r.name);
-            
             let formattedSteps = r.steps;
             if(r.steps.includes('【主料】')) {
                 const parts = r.steps.split('【步骤】');
@@ -230,7 +219,6 @@
             } else {
                 formattedSteps = `<div class="detail-section"><span class="detail-label">制作步骤</span><div class="detail-text">${r.steps}</div></div>`;
             }
-
             return `
                 <div class="recipe-card">
                     <img class="recipe-img" src="${r.img || '/images/default-chef.jpg'}">
@@ -278,12 +266,9 @@
             const name = document.getElementById('new-name').value;
             const kwString = document.getElementById('new-keywords').value;
             const steps = document.getElementById('new-steps').value;
-
             if(!name || !steps) return alert("请把信息填完整哦~");
-
             const kwArray = kwString.split(/[,，]/).map(s => s.trim());
             const { error } = await client.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
-
             if(!error) {
                 alert("🎉 分享成功！家人们刷新就能看到了");
                 document.getElementById('new-name').value = '';
@@ -305,10 +290,20 @@
                         messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: 【主料】\n... \n【步骤】\n1..." }, { role: "user", content: `食材：${input}` }]
                     })
                 });
+                
+                if (!response.ok) throw new Error('API请求失败');
+                
                 const data = await response.json();
+                if (!data.choices || data.choices.length === 0) throw new Error('AI返回数据为空');
+                
                 const [title, steps] = data.choices[0].message.content.split('|');
                 renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
-            } finally { resetSearchUI(); }
+            } catch (err) {
+                console.error("AI Error:", err);
+                alert("有点难🤔，请稍后再试");
+            } finally {
+                resetSearchUI();
+            }
         }
     </script>
 </body>
