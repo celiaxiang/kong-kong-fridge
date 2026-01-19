@@ -7,7 +7,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 保持原有根变量 [cite: 1, 2, 3] */
+        /* 样式完全继承自你的最终备份 [cite: 1-45] */
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
             --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
@@ -34,7 +34,6 @@
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); transition: 0.3s;
         }
 
-        /* 主按钮样式 [cite: 14, 15, 16] */
         .btn-main { 
             background-color: var(--forest) !important; color: white !important; 
             border: none; padding: 18px; width: 100%; border-radius: 50px; 
@@ -45,7 +44,6 @@
         .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
         .btn-main:disabled { background: #ccc !important; box-shadow: 0 4px 0 #999 !important; cursor: not-allowed; opacity: 0.7; }
 
-        /* 新增：提示文字样式 */
         .ai-hint { margin-top: 15px; font-size: 12px; color: rgba(19, 42, 19, 0.4); font-weight: 500; }
 
         .bottom-nav {
@@ -58,7 +56,6 @@
         .nav-item svg { width: 26px; height: 26px; fill: var(--forest); }
         .nav-text { font-size: 10px; margin-top: 6px; font-weight: 900; color: var(--forest); }
 
-        /* 结果遮罩与卡片细节 [cite: 23-44] */
         #result-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
@@ -94,15 +91,15 @@
         <h1>空空冰箱</h1>
         <div class="welcome-msg">把剩下的食材变成惊喜 ✨</div>
         <textarea id="ingredients" rows="3" placeholder="比如：鸡蛋，西红柿..."></textarea>
-        <button id="search-btn" class="btn-main" onclick="processCooking()">开始加工！</button>
+        <button id="search-btn" class="btn-main" onclick="window.processCooking()">开始加工！</button>
         <div class="ai-hint">可以输入一些天马行空的关键词哦！交给AI 🎨</div>
-        <div id="loading" class="loading">AI大厨在想了，在想了... 🧑‍🍳</div>
+        <div id="loading" class="loading">AI大厨在想了，在想了... 👨‍🍳</div>
     </div>
 
     <div id="random-page" class="page">
         <h1>灵感盲盒</h1>
         <div class="welcome-msg">遇见未知的美味 🎲</div>
-        <button id="random-btn" class="btn-main" onclick="getLucky()">随机抽取</button>
+        <button id="random-btn" class="btn-main" onclick="window.getLucky()">随机抽取</button>
         <div id="random-result" style="margin-top:40px; width:100%"></div>
     </div>
 
@@ -110,10 +107,10 @@
         <h1>分享美味</h1>
         <div class="welcome-msg">把你的私藏菜谱告诉家人们吧 📢</div>
         <div style="width:100%;">
-            <input id="new-name" class="upload-input" placeholder="菜名（如：外婆红烧肉）">
-            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号隔开）" style="margin-top: 10px;">
+            <input id="new-name" class="upload-input" placeholder="菜名">
+            <input id="new-keywords" class="upload-input" placeholder="食材关键词（逗号隔开）" style="margin-top: 10px;">
             <textarea id="new-steps" class="upload-input" rows="6" placeholder="制作步骤" style="margin-top: 10px; border-radius: 20px;"></textarea>
-            <button id="upload-btn" class="btn-main" onclick="uploadRecipe()">分享给家人们</button>
+            <button id="upload-btn" class="btn-main" onclick="window.uploadRecipe()">分享给家人们</button>
         </div>
     </div>
 
@@ -124,7 +121,7 @@
     </div>
 
     <div id="result-overlay">
-        <div class="back-btn" onclick="closeOverlay()">
+        <div class="back-btn" onclick="window.closeOverlay()">
             <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
         <div id="result-content"></div>
@@ -150,24 +147,18 @@
     </div>
 
     <script>
-        // --- 请务必填入你的配置 ---
-        const SUPABASE_URL = '你的_PROJECT_URL';
-        const SUPABASE_KEY = '你的_ANON_KEY';
+        // --- 1. 立即初始化 Supabase 连接 ---
+        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        function switchPage(pageId, element) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            element.classList.add('active');
-            if(pageId === 'fav-page') renderFavs();
-        }
-
-        async function processCooking() {
+        // --- 2. 核心功能函数（挂载到 window 确保 HTML 中的 onclick 可用） ---
+        window.processCooking = async function() {
             const input = document.getElementById('ingredients').value.trim();
             if(!input) return;
             const btn = document.getElementById('search-btn');
             const loader = document.getElementById('loading');
+            
             btn.disabled = true;
             btn.innerText = "正在寻找灵感...";
             loader.style.display = 'block';
@@ -187,20 +178,81 @@
                         renderResults(matches);
                         resetSearchUI();
                     } else {
-                        await generateAI(input);
+                        await window.generateAI(input);
                     }
                 }
             } catch(e) { 
                 console.error(e); 
                 resetSearchUI();
+                alert("云端连接失败，请检查网络设置。");
             }
-        }
+        };
 
+        window.getLucky = async function() {
+            try {
+                const { data } = await client.from('recipes').select('*');
+                if(data && data.length > 0) {
+                    const r = data[Math.floor(Math.random() * data.length)];
+                    document.getElementById('random-result').innerHTML = createCard(r);
+                }
+            } catch(e) { alert("盲盒暂时打不开..."); }
+        };
+
+        window.uploadRecipe = async function() {
+            const name = document.getElementById('new-name').value;
+            const kwString = document.getElementById('new-keywords').value;
+            const steps = document.getElementById('new-steps').value;
+            if(!name || !steps) return alert("请把信息填完整哦~");
+            const kwArray = kwString.split(/[,，]/).map(s => s.trim());
+            try {
+                const { error } = await client.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
+                if(!error) {
+                    alert("🎉 分享成功！家人们刷新就能看到了");
+                    document.getElementById('new-name').value = '';
+                    document.getElementById('new-keywords').value = '';
+                    document.getElementById('new-steps').value = '';
+                    switchPage('search-page', document.querySelectorAll('.nav-item')[0]);
+                } else { throw error; }
+            } catch (e) { alert("分享失败：" + e.message); }
+        };
+
+        window.generateAI = async function(input) {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "deepseek-chat",
+                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: 【主料】\n... \n【步骤】\n1..." }, { role: "user", content: `食材：${input}` }]
+                    })
+                });
+                if (!response.ok) throw new Error('API请求失败');
+                const data = await response.json();
+                const [title, steps] = data.choices[0].message.content.split('|');
+                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
+            } catch (err) {
+                alert("AI大厨去进货了，请稍后再试！🎨");
+            } finally {
+                resetSearchUI();
+            }
+        };
+
+        window.closeOverlay = function() { document.getElementById('result-overlay').style.display = 'none'; };
+
+        // --- 3. 辅助渲染逻辑 ---
         function resetSearchUI() {
             const btn = document.getElementById('search-btn');
             const loader = document.getElementById('loading');
             if(btn) { btn.disabled = false; btn.innerText = "开始加工！"; }
             if(loader) loader.style.display = 'none';
+        }
+
+        function switchPage(pageId, element) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            element.classList.add('active');
+            if(pageId === 'fav-page') renderFavs();
         }
 
         function renderResults(recipes) {
@@ -252,58 +304,6 @@
         function renderFavs() {
             const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
             document.getElementById('fav-list').innerHTML = favs.length ? favs.map(r => createCard(r)).join('') : "<p style='text-align:center; opacity:0.3; margin-top:50px;'>这里还是空空的...</p>";
-        }
-
-        async function getLucky() {
-            const { data } = await client.from('recipes').select('*');
-            if(data && data.length > 0) {
-                const r = data[Math.floor(Math.random() * data.length)];
-                document.getElementById('random-result').innerHTML = createCard(r);
-            }
-        }
-
-        async function uploadRecipe() {
-            const name = document.getElementById('new-name').value;
-            const kwString = document.getElementById('new-keywords').value;
-            const steps = document.getElementById('new-steps').value;
-            if(!name || !steps) return alert("请把信息填完整哦~");
-            const kwArray = kwString.split(/[,，]/).map(s => s.trim());
-            const { error } = await client.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
-            if(!error) {
-                alert("🎉 分享成功！家人们刷新就能看到了");
-                document.getElementById('new-name').value = '';
-                document.getElementById('new-keywords').value = '';
-                document.getElementById('new-steps').value = '';
-                switchPage('search-page', document.querySelectorAll('.nav-item')[0]);
-            } else { alert("分享失败：" + error.message); }
-        }
-
-        function closeOverlay() { document.getElementById('result-overlay').style.display = 'none'; }
-
-        async function generateAI(input) {
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: 【主料】\n... \n【步骤】\n1..." }, { role: "user", content: `食材：${input}` }]
-                    })
-                });
-                
-                if (!response.ok) throw new Error('API请求失败');
-                
-                const data = await response.json();
-                if (!data.choices || data.choices.length === 0) throw new Error('AI返回数据为空');
-                
-                const [title, steps] = data.choices[0].message.content.split('|');
-                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
-            } catch (err) {
-                console.error("AI Error:", err);
-                alert("有点难🤔，请稍后再试");
-            } finally {
-                resetSearchUI();
-            }
         }
     </script>
 </body>
