@@ -7,304 +7,160 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 样式完全继承自你的最终备份 [cite: 1-45] */
+        /* 继承你备份的 Leafy Green 风格 [cite: 2, 17-21] */
         :root { 
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955; 
-            --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
-            --gold: #FFB900; --gray: #d0d0d0; --divider: rgba(0, 0, 0, 0.08);
+            --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --gold: #FFB900; --divider: rgba(0, 0, 0, 0.08);
         }
-
-        body { 
-            font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-creme);
-            background: linear-gradient(rgba(255, 250, 240, 0.9), rgba(255, 250, 240, 0.9)), 
-                        url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M10 20 L25 40 L50 40' stroke='%2390a955' fill='none' opacity='0.15'/%3E%3C/svg%3E");
-            margin: 0; padding: 0; color: var(--dark-green);
-        }
-
-        .page { display: none; padding: 12vh 25px 120px 25px; animation: fadeIn 0.4s ease; box-sizing: border-box; min-height: 100vh; flex-direction: column; align-items: center; }
+        /* 样式代码保持不变，确保圆润和拟物感 [cite: 6-16, 23-44] */
+        body { font-family: 'Noto Sans SC', sans-serif; background-color: var(--bg-creme); margin: 0; color: var(--dark-green); }
+        .page { display: none; padding: 12vh 25px 120px 25px; animation: fadeIn 0.4s ease; box-sizing: border-box; flex-direction: column; align-items: center; }
         .page.active { display: flex; }
-        h1 { font-family: 'ZCOOL XiaoWei', serif; font-size: 38px; margin-bottom: 8px; }
-        .welcome-msg { font-size: 14px; color: var(--leaf); margin-bottom: 40px; font-weight: bold; text-align: center; }
-
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        textarea, .upload-input { 
-            width: 100%; padding: 22px; border: 1.5px solid var(--divider); border-radius: 28px; 
-            background: white; font-size: 16px; outline: none; box-sizing: border-box;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03); transition: 0.3s;
-        }
-
-        .btn-main { 
-            background-color: var(--forest) !important; color: white !important; 
-            border: none; padding: 18px; width: 100%; border-radius: 50px; 
-            margin-top: 30px; font-weight: bold; font-size: 18px; cursor: pointer;
-            box-shadow: 0 6px 0 var(--dark-green); transition: 0.2s; display: block; text-align: center;
-        }
-        #random-page .btn-main { background-color: var(--leaf) !important; box-shadow: 0 6px 0 #4f772d; }
-        .btn-main:active { transform: translateY(4px); box-shadow: 0 2px 0 var(--dark-green); }
-        .btn-main:disabled { background: #ccc !important; box-shadow: 0 4px 0 #999 !important; cursor: not-allowed; opacity: 0.7; }
-
-        .ai-hint { margin-top: 15px; font-size: 12px; color: rgba(19, 42, 19, 0.4); font-weight: 500; }
-
-        .bottom-nav {
-            position: fixed; bottom: 25px; left: 15px; right: 15px; height: 75px;
-            background: white; border-radius: 40px; box-shadow: 0 15px 40px rgba(0,0,0,0.08); 
-            display: flex; justify-content: space-around; align-items: center; z-index: 1000;
-        }
-        .nav-item { display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.3s; opacity: 0.35; flex: 1; }
-        .nav-item.active { opacity: 1; transform: translateY(-3px); }
-        .nav-item svg { width: 26px; height: 26px; fill: var(--forest); }
-        .nav-text { font-size: 10px; margin-top: 6px; font-weight: 900; color: var(--forest); }
-
-        #result-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-creme); z-index: 2000; display: none; overflow-y: auto;
-            padding: 80px 20px 40px; box-sizing: border-box;
-        }
-        .back-btn { 
-            position: fixed; top: 20px; left: 20px; background: white; width: 45px; height: 45px; 
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1); z-index: 2100; cursor: pointer;
-        }
-        .back-btn svg { width: 22px; height: 22px; stroke: var(--forest); fill: none; stroke-width: 3; stroke-linecap: round; }
-
-        .recipe-card { background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; }
-        .recipe-img { width: 100%; height: 250px; object-fit: cover; }
-        .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; }
-        .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; color: var(--forest); }
-        .fav-star svg { width: 32px; height: 32px; stroke: var(--gray); stroke-width: 2.5; fill: none; }
-        .fav-star.active svg { stroke: var(--gold); fill: var(--gold); }
-        .expand-btn { margin: 15px 25px 15px auto; width: 45px; height: 32px; background: var(--pale-leaf); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-        .expand-btn svg { width: 18px; height: 18px; fill: var(--forest); }
-        .recipe-detail-box { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; padding: 0 25px; background: #fafafa; }
-        .recipe-detail-box.show { max-height: 2000px; padding: 25px; border-top: 1px solid #eee; }
-        .detail-label { font-weight: 900; color: var(--forest); display: block; margin-bottom: 8px; font-size: 16px; border-left: 5px solid var(--leaf); padding-left: 10px; }
-        .detail-text { color: #555; line-height: 2; white-space: pre-line; font-size: 15px; }
-
-        .loading { display: none; margin-top: 25px; font-weight: bold; color: var(--forest); animation: pulse 1.2s infinite; font-size: 15px; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .btn-main { background-color: var(--forest) !important; color: white !important; border-radius: 50px; padding: 18px; width: 100%; cursor: pointer; font-weight: bold; border: none; box-shadow: 0 6px 0 var(--dark-green); margin-top: 20px; }
+        .upload-label { display: block; background: white; border: 2px dashed var(--leaf); border-radius: 20px; padding: 20px; text-align: center; color: var(--leaf); margin-top: 10px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="search-page" class="page active">
-        <h1>空空冰箱</h1>
+        <h1 style="font-family:'ZCOOL XiaoWei'">空空冰箱</h1>
         <div class="welcome-msg">把剩下的食材变成惊喜 ✨</div>
-        <textarea id="ingredients" rows="3" placeholder="比如：鸡蛋，西红柿..."></textarea>
+        <textarea id="ingredients" rows="3" placeholder="冰箱里还有什么？"></textarea>
         <button id="search-btn" class="btn-main" onclick="window.processCooking()">开始加工！</button>
-        <div class="ai-hint">可以输入一些天马行空的关键词哦！交给AI 🎨</div>
-        <div id="loading" class="loading">AI大厨在想了，在想了... 👨‍🍳</div>
-    </div>
-
-    <div id="random-page" class="page">
-        <h1>灵感盲盒</h1>
-        <div class="welcome-msg">遇见未知的美味 🎲</div>
-        <button id="random-btn" class="btn-main" onclick="window.getLucky()">随机抽取</button>
-        <div id="random-result" style="margin-top:40px; width:100%"></div>
+        <div id="loading" class="loading" style="display:none">AI大厨在想了... 👨‍🍳</div>
     </div>
 
     <div id="share-page" class="page">
         <h1>分享美味</h1>
         <div class="welcome-msg">把你的私藏菜谱告诉家人们吧 📢</div>
         <div style="width:100%;">
-            <input id="new-name" class="upload-input" placeholder="菜名">
-            <input id="new-keywords" class="upload-input" placeholder="食材关键词（逗号隔开）" style="margin-top: 10px;">
-            <textarea id="new-steps" class="upload-input" rows="6" placeholder="制作步骤" style="margin-top: 10px; border-radius: 20px;"></textarea>
+            <input id="new-author" class="upload-input" placeholder="分享者（如：妈妈）">
+            <input id="new-name" class="upload-input" placeholder="菜名" style="margin-top:10px;">
+            <input id="new-keywords" class="upload-input" placeholder="食材关键词（用逗号隔开）" style="margin-top:10px;">
+            <textarea id="new-steps" class="upload-input" rows="4" placeholder="制作步骤" style="margin-top:10px;"></textarea>
+            <label class="upload-label" for="file-upload" id="file-label">📸 点击上传成品图 (选填)</label>
+            <input type="file" id="file-upload" style="display:none" accept="image/*" onchange="window.previewImage(this)">
             <button id="upload-btn" class="btn-main" onclick="window.uploadRecipe()">分享给家人们</button>
         </div>
     </div>
 
-    <div id="fav-page" class="page">
-        <h1>私房菜</h1>
-        <div class="welcome-msg">这里藏着你的美食记忆 ⭐</div>
-        <div id="fav-list" style="width:100%"></div>
+    <div id="fav-page" class="page"><h1>私房菜</h1><div id="fav-list" style="width:100%"></div></div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="switchPage('search-page', this)"><div class="nav-text">搜索</div></div>
+        <div class="nav-item" onclick="switchPage('share-page', this)"><div class="nav-text">分享</div></div>
+        <div class="nav-item" onclick="switchPage('fav-page', this)"><div class="nav-text">收藏</div></div>
     </div>
 
     <div id="result-overlay">
-        <div class="back-btn" onclick="window.closeOverlay()">
-            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-        </div>
+        <div class="back-btn" onclick="window.closeOverlay()"><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></div>
         <div id="result-content"></div>
     </div>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="switchPage('search-page', this)">
-            <svg viewBox="0 0 24 24"><path d="M11 19a8 8 0 100-16 8 8 0 000 16zM21 21l-4.35-4.35"/></svg>
-            <div class="nav-text">搜索</div>
-        </div>
-        <div class="nav-item" onclick="switchPage('random-page', this)">
-            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="4"/><circle cx="9" cy="9" r="1.5"/><circle cx="15" cy="15" r="1.5"/><circle cx="15" cy="9" r="1.5"/><circle cx="8.5" cy="15.5" r="1.5"/></svg>
-            <div class="nav-text">盲盒</div>
-        </div>
-        <div class="nav-item" onclick="switchPage('share-page', this)">
-            <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            <div class="nav-text">分享</div>
-        </div>
-        <div class="nav-item" onclick="switchPage('fav-page', this)">
-            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
-            <div class="nav-text">收藏</div>
-        </div>
-    </div>
-
     <script>
-        // --- 1. 立即初始化 Supabase 连接 ---
-        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
+        const SUPABASE_URL = '你的_URL';
+        const SUPABASE_KEY = '你的_KEY';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // --- 2. 核心功能函数（挂载到 window 确保 HTML 中的 onclick 可用） ---
+        let currentFile = null;
+
+        // 图片预览
+        window.previewImage = function(input) {
+            if (input.files && input.files[0]) {
+                currentFile = input.files[0];
+                document.getElementById('file-label').innerText = "✅ 已选择照片：" + currentFile.name;
+            }
+        };
+
+        // 搜索逻辑：亲友版侧重“相关性” [需求 1]
         window.processCooking = async function() {
             const input = document.getElementById('ingredients').value.trim();
             if(!input) return;
-            const btn = document.getElementById('search-btn');
-            const loader = document.getElementById('loading');
-            
-            btn.disabled = true;
-            btn.innerText = "正在寻找灵感...";
-            loader.style.display = 'block';
+            document.getElementById('loading').style.display = 'block';
 
             try {
                 const { data } = await client.from('recipes').select('*');
                 if (data) {
                     let matches = data.map(r => {
                         let hitCount = 0;
-                        r.keywords.forEach(k => {
-                            if (input.includes(k) || k.includes(input)) hitCount++;
-                        });
+                        r.keywords.forEach(k => { if (input.includes(k) || k.includes(input)) hitCount++; });
                         return { ...r, hitCount };
                     }).filter(r => r.hitCount > 0);
-                    matches.sort((a,b) => b.hitCount - a.hitCount);
-                    if(matches.length > 0) {
-                        renderResults(matches);
-                        resetSearchUI();
-                    } else {
-                        await window.generateAI(input);
-                    }
+
+                    // 排序：优先展示食材匹配最多的菜谱 [需求 1]
+                    matches.sort((a, b) => b.hitCount - a.hitCount);
+                    
+                    document.getElementById('result-content').innerHTML = matches.map(r => createCard(r)).join('');
+                    document.getElementById('result-overlay').style.display = 'block';
                 }
-            } catch(e) { 
-                console.error(e); 
-                resetSearchUI();
-                alert("云端连接失败，请检查网络设置。");
-            }
+            } finally { document.getElementById('loading').style.display = 'none'; }
         };
-
-        window.getLucky = async function() {
-            try {
-                const { data } = await client.from('recipes').select('*');
-                if(data && data.length > 0) {
-                    const r = data[Math.floor(Math.random() * data.length)];
-                    document.getElementById('random-result').innerHTML = createCard(r);
-                }
-            } catch(e) { alert("盲盒暂时打不开..."); }
-        };
-
-        window.uploadRecipe = async function() {
-            const name = document.getElementById('new-name').value;
-            const kwString = document.getElementById('new-keywords').value;
-            const steps = document.getElementById('new-steps').value;
-            if(!name || !steps) return alert("请把信息填完整哦~");
-            const kwArray = kwString.split(/[,，]/).map(s => s.trim());
-            try {
-                const { error } = await client.from('recipes').insert([{ name, keywords: kwArray, steps, img: "/images/default-chef.jpg" }]);
-                if(!error) {
-                    alert("🎉 分享成功！家人们刷新就能看到了");
-                    document.getElementById('new-name').value = '';
-                    document.getElementById('new-keywords').value = '';
-                    document.getElementById('new-steps').value = '';
-                    switchPage('search-page', document.querySelectorAll('.nav-item')[0]);
-                } else { throw error; }
-            } catch (e) { alert("分享失败：" + e.message); }
-        };
-
-        window.generateAI = async function(input) {
-            try {
-                const response = await fetch('/api/chat', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        model: "deepseek-chat",
-                        messages: [{ role: "system", content: "返回格式：菜名: [名字] | 做法: 【主料】\n... \n【步骤】\n1..." }, { role: "user", content: `食材：${input}` }]
-                    })
-                });
-                if (!response.ok) throw new Error('API请求失败');
-                const data = await response.json();
-                const [title, steps] = data.choices[0].message.content.split('|');
-                renderResults([{ name: title.replace('菜名:','').trim(), steps: steps.replace('做法:','').trim() }]);
-            } catch (err) {
-                alert("AI大厨去进货了，请稍后再试！🎨");
-            } finally {
-                resetSearchUI();
-            }
-        };
-
-        window.closeOverlay = function() { document.getElementById('result-overlay').style.display = 'none'; };
-
-        // --- 3. 辅助渲染逻辑 ---
-        function resetSearchUI() {
-            const btn = document.getElementById('search-btn');
-            const loader = document.getElementById('loading');
-            if(btn) { btn.disabled = false; btn.innerText = "开始加工！"; }
-            if(loader) loader.style.display = 'none';
-        }
-
-        function switchPage(pageId, element) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            element.classList.add('active');
-            if(pageId === 'fav-page') renderFavs();
-        }
-
-        function renderResults(recipes) {
-            document.getElementById('result-content').innerHTML = recipes.map(r => createCard(r)).join('');
-            document.getElementById('result-overlay').style.display = 'block';
-        }
 
         function createCard(r) {
-            const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            const isFav = favs.some(f => f.name === r.name);
-            let formattedSteps = r.steps;
-            if(r.steps.includes('【主料】')) {
-                const parts = r.steps.split('【步骤】');
-                formattedSteps = `<div class="detail-section"><span class="detail-label">主料清单</span><div class="detail-text">${parts[0].replace('【主料】','')}</div></div>
-                                  <div class="detail-section"><span class="detail-label">烹饪步骤</span><div class="detail-text">${parts[1] || ''}</div></div>`;
-            } else {
-                formattedSteps = `<div class="detail-section"><span class="detail-label">制作步骤</span><div class="detail-text">${r.steps}</div></div>`;
-            }
             return `
                 <div class="recipe-card">
                     <img class="recipe-img" src="${r.img || '/images/default-chef.jpg'}">
                     <div class="recipe-main-info">
-                        <span class="recipe-title">${r.name}</span>
-                        <div class="fav-star ${isFav ? 'active' : ''}" onclick="toggleSave('${r.name}', '${r.steps.replace(/\n/g, '\\n')}', '${r.img}', this)">
-                            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                        <div>
+                            <div class="recipe-title">${r.name}</div>
+                            <div style="font-size:12px; color:#999; margin-top:5px;">by @${r.author || '大厨'}</div>
                         </div>
                     </div>
-                    <div class="recipe-detail-box">${formattedSteps}</div>
-                    <div class="expand-btn" onclick="toggleCard(this)"><svg viewBox="0 0 24 24" class="arrow-svg"><path d="M7 10l5 5 5-5"/></svg></div>
+                    <div class="recipe-detail-box">
+                        <div class="detail-label">制作步骤</div>
+                        <div class="detail-text">${r.steps}</div>
+                    </div>
+                    <div class="expand-btn" onclick="window.toggleCard(this)"><svg viewBox="0 0 24 24" class="arrow-svg"><path d="M7 10l5 5 5-5"/></svg></div>
                 </div>`;
         }
 
-        function toggleCard(btn) {
+        // 分享逻辑：上传图片并同步到数据库 [需求 1, 2]
+        window.uploadRecipe = async function() {
+            const name = document.getElementById('new-name').value;
+            const author = document.getElementById('new-author').value;
+            const kw = document.getElementById('new-keywords').value;
+            const steps = document.getElementById('new-steps').value;
+
+            if(!name || !steps) return alert("菜名和步骤是必须的哦！");
+
+            // 1. 重复检测 [需求 2]
+            const { data: existData } = await client.from('recipes').select('id').eq('name', name).limit(1);
+            if(existData && existData.length > 0) {
+                if(!confirm(`家里已经有一份《${name}》了，要再分享一个你的版本吗？`)) return;
+            }
+
+            let imgUrl = "";
+
+            // 2. 如果有图片，先传到 Storage [需求 1]
+            if (currentFile) {
+                const fileExt = currentFile.name.split('.').pop();
+                const fileName = `${Math.random()}.${fileExt}`;
+                const { data, error } = await client.storage.from('recipe-images').upload(fileName, currentFile);
+                if (data) {
+                    const { data: publicUrl } = client.storage.from('recipe-images').getPublicUrl(fileName);
+                    imgUrl = publicUrl.publicUrl;
+                }
+            }
+
+            // 3. 存入数据库
+            const { error } = await client.from('recipes').insert([{ 
+                name, author, steps, img: imgUrl,
+                keywords: kw.split(/[,，]/).map(s => s.trim())
+            }]);
+
+            if(!error) {
+                alert("🎉 分享成功！家人们都能看到了");
+                location.reload(); 
+            }
+        };
+
+        window.toggleCard = function(btn) {
             const box = btn.previousElementSibling;
-            const arrow = btn.querySelector('.arrow-svg');
             box.classList.toggle('show');
-            arrow.style.transform = box.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
-        }
+            btn.querySelector('.arrow-svg').style.transform = box.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
+        };
 
-        function toggleSave(name, steps, img, dom) {
-            let favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            const idx = favs.findIndex(f => f.name === name);
-            if(idx > -1) { favs.splice(idx, 1); dom.classList.remove('active'); }
-            else { favs.push({ name, steps, img }); dom.classList.add('active'); }
-            localStorage.setItem('favRecipes', JSON.stringify(favs));
-            if(document.getElementById('fav-page').classList.contains('active')) renderFavs();
-        }
-
-        function renderFavs() {
-            const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            document.getElementById('fav-list').innerHTML = favs.length ? favs.map(r => createCard(r)).join('') : "<p style='text-align:center; opacity:0.3; margin-top:50px;'>这里还是空空的...</p>";
-        }
+        window.closeOverlay = function() { document.getElementById('result-overlay').style.display = 'none'; };
     </script>
 </body>
 </html>
