@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🛒 空空冰箱 Pro - 终极修复版</title>
+    <title>🛒 空空冰箱 Pro - AI 混合生成旗舰版</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* ================= 样式区域 ================= */
+        /* ================= 样式区域 (完整保留) ================= */
         :root {
             --dark-green: #132a13; --forest: #31572c; --leaf: #90a955;
             --pale-leaf: #ecf39e; --bg-creme: #fffaf0; --white-glass: rgba(255, 255, 255, 0.95);
@@ -93,7 +93,7 @@
 
         /* 卡片样式 */
         .recipe-card { background: white; border-radius: 35px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.05); position: relative; }
-        .recipe-img { width: 100%; height: 250px; object-fit: cover; }
+        .recipe-img { width: 100%; height: 250px; object-fit: cover; background: #f0f0f0; transition: opacity 0.5s; }
         .recipe-main-info { padding: 25px; position: relative; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid #f1f1f1; }
         .recipe-title-section { flex: 1; }
         .recipe-title { font-family: 'ZCOOL XiaoWei', serif; font-size: 24px; color: var(--forest); margin-bottom: 8px; }
@@ -138,7 +138,7 @@
         <textarea id="ingredients" rows="3" placeholder="比如：鸡蛋，西红柿..."></textarea>
         <button id="search-btn" class="btn-main" onclick="window.processCooking()">开始加工！</button>
         <div class="ai-hint">可以输入一些天马行空的关键词哦！交给AI 🎨</div>
-        <div id="loading" class="loading">AI大厨在想了，在想了... 👨‍🍳</div>
+        <div id="loading" class="loading">DeepSeek 正在思考，FLUX 正在绘图... 👨‍🍳</div>
     </div>
 
     <div id="random-page" class="page">
@@ -222,21 +222,17 @@
 
     <script>
         // ==================== 1. 配置区域 (请务必填入!) ====================
-        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co'; // ⚠️ 这里一定要填！
-        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';    // ⚠️ 这里一定要填！
+        const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co'; // ⚠️⚠️⚠️ 替换这里
+        const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';    // ⚠️⚠️⚠️ 替换这里
         
-        // 安全初始化客户端
         let client;
         try {
-            if (!SUPABASE_URL || SUPABASE_URL.includes('请填入')) {
+            if (!SUPABASE_URL || SUPABASE_URL.includes('https://fgtukmqapgkbyzzidjdt.supabase.co')) {
                 console.warn('Supabase URL 未配置，部分功能将不可用');
             } else {
                 client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             }
-        } catch (e) {
-            console.error('Supabase 初始化失败:', e);
-            alert("系统初始化失败，请检查 API 配置！");
-        }
+        } catch (e) { console.error('Supabase 初始化失败:', e); }
 
         // ==================== 2. 食材扩展词库 ====================
         const ingredientExpansion = {
@@ -268,7 +264,7 @@
             if(pageId === 'fav-page') window.renderFavs();
         };
 
-        // 搜索菜谱
+        // 核心：处理烹饪 (搜索 + AI 混合生成)
         window.processCooking = async function() {
             const input = document.getElementById('ingredients').value.trim();
             if(!input) return;
@@ -280,38 +276,38 @@
             loader.style.display = 'block';
 
             try {
-                if(!client) throw new Error("Supabase 未连接");
-                const { data } = await client.from('recipes').select('*');
-                
-                if (data) {
-                    const expandedInputs = expandKeywords(input);
-                    let matches = data.map(r => {
-                        let hitCount = 0;
-                        expandedInputs.forEach(expKw => {
-                            r.keywords.forEach(recipeKw => {
-                                if (recipeKw.includes(expKw) || expKw.includes(recipeKw)) hitCount++;
+                // 1. 先查数据库
+                if(client) {
+                    const { data } = await client.from('recipes').select('*');
+                    if (data) {
+                        const expandedInputs = expandKeywords(input);
+                        let matches = data.map(r => {
+                            let hitCount = 0;
+                            expandedInputs.forEach(expKw => {
+                                r.keywords.forEach(recipeKw => {
+                                    if (recipeKw.includes(expKw) || expKw.includes(recipeKw)) hitCount++;
+                                });
                             });
-                        });
-                        return { ...r, hitCount };
-                    }).filter(r => r.hitCount > 0);
+                            return { ...r, hitCount };
+                        }).filter(r => r.hitCount > 0);
 
-                    matches.sort((a, b) => b.hitCount - a.hitCount);
-                    
-                    if(matches.length > 0) {
-                        window.renderResults(matches);
-                        resetSearchUI();
-                    } else {
-                        await window.generateAI(input);
+                        matches.sort((a, b) => b.hitCount - a.hitCount);
+                        
+                        if(matches.length > 0) {
+                            window.renderResults(matches);
+                            resetSearchUI();
+                            return; // 找到就直接返回，不调 AI
+                        }
                     }
                 }
+                
+                // 2. 数据库没有，调用 AI (混合生成)
+                await window.generateAI(input);
+
             } catch(e) {
                 console.error(e);
                 resetSearchUI();
-                if(e.message === "Supabase 未连接") {
-                    alert("请先在代码中配置 Supabase URL 和 Key！");
-                } else {
-                    alert("连接云端失败，请检查网络设置。");
-                }
+                alert("发生错误：" + e.message);
             }
         };
 
@@ -327,15 +323,15 @@
             } catch(e) { alert("盲盒暂时打不开..."); }
         };
 
-        // AI 生成 (包含错误处理)
+        // AI 混合生成逻辑 (Text + Image)
         window.generateAI = async function(input) {
+            const loader = document.getElementById('loading');
             try {
-                // 尝试调用后端 API
-                const response = await fetch('/api/chat', {
+                // 第一步：调用 DeepSeek 生成文本
+                const chatRes = await fetch('/api/chat', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        model: "deepseek-chat",
                         messages: [
                             { role: "system", content: "返回格式：菜名: [名字] | 做法: 【主料】\n... \n【步骤】\n1..." },
                             { role: "user", content: `食材：${input}` }
@@ -343,30 +339,54 @@
                     })
                 });
                 
-                // 如果 API 返回 404，说明后端没部署
-                if (response.status === 404) {
-                    throw new Error("Backend_Not_Found");
-                }
+                if (chatRes.status === 404) throw new Error("Backend_Not_Found");
+                if (!chatRes.ok) throw new Error('Text API Error');
                 
-                if (!response.ok) throw new Error('API请求失败');
-                const data = await response.json();
-                const [title, steps] = data.choices[0].message.content.split('|');
+                const chatData = await chatRes.json();
+                const [title, steps] = chatData.choices[0].message.content.split('|');
+                const recipeName = title.replace('菜名:','').trim();
+                const recipeSteps = steps.replace('做法:','').trim();
                 
-                window.renderResults([{ 
-                    name: title.replace('菜名:','').trim(), 
-                    steps: steps.replace('做法:','').trim(),
+                // 先渲染文本结果 (用默认图占位)
+                const tempRecipe = { 
+                    name: recipeName, 
+                    steps: recipeSteps,
                     author: "AI大厨",
                     img: "/images/default-chef.jpg" 
-                }]);
+                };
+                window.renderResults([tempRecipe]);
+                
+                // 第二步：异步调用 FLUX 生成图片
+                loader.innerText = `正在为《${recipeName}》绘制插图... 🖌️`;
+                
+                fetch('/api/generate-image', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ recipeName: recipeName })
+                })
+                .then(res => res.json())
+                .then(imgData => {
+                    if (imgData.success && imgData.imageUrl) {
+                        const imgEl = document.querySelector('.recipe-img');
+                        if (imgEl) imgEl.src = imgData.imageUrl;
+                    }
+                })
+                .catch(e => console.error("生图失败:", e));
+
             } catch (err) {
-                console.error('AI Error:', err);
                 if (err.message === "Backend_Not_Found") {
-                    alert("⚠️ 只有在部署了后端 API 后，才能使用 AI 生成新菜谱哦。\n目前仅支持搜索已有菜谱。");
+                    alert("⚠️ 请确保已部署 api/chat.js 和 api/generate-image.js");
                 } else {
-                    alert("AI大厨去进货了（服务暂时不可用），请稍后再试！🎨");
+                    alert("AI 服务暂时不可用，请稍后再试！");
                 }
             } finally {
-                resetSearchUI();
+                // 不立即隐藏 loader，让用户看到“正在绘图”
+                setTimeout(() => {
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('loading').innerText = "DeepSeek 正在思考，FLUX 正在绘图... 👨‍🍳";
+                    document.getElementById('search-btn').disabled = false;
+                    document.getElementById('search-btn').innerText = "开始加工！";
+                }, 3000); 
             }
         };
 
@@ -455,13 +475,10 @@
         // 渲染相关
         window.createCard = function(r) {
             const favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            const isFav = favs.some(f => f.name === r.name && f.author === r.author);
+            const isFav = favs.some(f => f.name === r.name);
             
-            // 菜名和内容转义，防止引号破坏HTML
-            const safeName = (r.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            const safeAuthor = (r.author || '').replace(/'/g, "\\'");
-            const safeSteps = (r.steps || '').replace(/'/g, "\\'").replace(/\n/g, '\\n');
-            const safeImg = (r.img || '').replace(/'/g, "\\'");
+            // 【关键修复】使用 encodeURIComponent 打包数据，防止引号破坏 HTML
+            const dataStr = encodeURIComponent(JSON.stringify(r));
 
             let formattedSteps = r.steps;
             if(r.steps.includes('【主料】')) {
@@ -477,9 +494,9 @@
                     <div class="recipe-main-info">
                         <div class="recipe-title-section">
                             <div class="recipe-title">${r.name}</div>
-                            <div class="recipe-author">${r.author || '匿名大厨'}</div>
+                            <div class="recipe-author">👨‍🍳 ${r.author || '匿名大厨'}</div>
                         </div>
-                        <div class="fav-star ${isFav ? 'active' : ''}" onclick="window.toggleSave('${safeName}', '${safeSteps}', '${safeImg}', '${safeAuthor}', this)">
+                        <div class="fav-star ${isFav ? 'active' : ''}" onclick="window.toggleSave(this, '${dataStr}')">
                             <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                         </div>
                     </div>
@@ -494,11 +511,19 @@
             btn.querySelector('.arrow-svg').style.transform = box.classList.contains('show') ? 'rotate(180deg)' : 'rotate(0deg)';
         };
 
-        window.toggleSave = function(name, steps, img, author, dom) {
+        // 【关键修复】解包数据并保存
+        window.toggleSave = function(btn, dataStr) {
+            const r = JSON.parse(decodeURIComponent(dataStr));
             let favs = JSON.parse(localStorage.getItem('favRecipes') || '[]');
-            const idx = favs.findIndex(f => f.name === name && f.author === author);
-            if(idx > -1) { favs.splice(idx, 1); dom.classList.remove('active'); }
-            else { favs.push({ name, steps, img, author }); dom.classList.add('active'); }
+            const idx = favs.findIndex(f => f.name === r.name);
+            
+            if(idx > -1) { 
+                favs.splice(idx, 1); 
+                btn.classList.remove('active'); 
+            } else { 
+                favs.push(r); 
+                btn.classList.add('active'); 
+            }
             localStorage.setItem('favRecipes', JSON.stringify(favs));
             if(document.getElementById('fav-page').classList.contains('active')) window.renderFavs();
         };
