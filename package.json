@@ -1,0 +1,7 @@
+{
+  "name": "kong-kong-fridge",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "空空冰箱 - 美食分享应用",
+  "private": true
+}
