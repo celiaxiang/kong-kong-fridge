@@ -1,11 +1,11 @@
 // api/generate-image.js
 export default async function handler(req, res) {
-  // 1. 设置 CORS 头（允许前端跨域访问）
+  // 1. 设置 CORS 头
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  // 2. 处理预检请求 (OPTIONS)
+  // 2. 处理预检请求
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
@@ -36,9 +36,7 @@ export default async function handler(req, res) {
 
     console.log(`正在生成图片: ${recipeName}`);
 
-    // ❌ 已删除：const fetch = (await import('node-fetch')).default;
-    // ✅ 直接使用内置 fetch：
-
+    // 直接使用内置 fetch
     const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: {
