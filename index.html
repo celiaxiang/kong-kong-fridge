@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>🛒 空空冰箱 Pro - AI图片版</title>
+    <title>🛒 空空冰箱 Pro - 安全版</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=Noto+Sans+SC:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -154,7 +154,6 @@
         }
         .modal-btn:active { transform: scale(0.96); }
 
-        /* AI图片生成中的加载动画 */
         .ai-image-loading {
             width: 100%; height: 250px; background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 0;
@@ -263,15 +262,13 @@
     </div>
 
     <script>
-        // ==================== 配置区域 ====================
-        // Supabase 配置
+        // ==================== 配置区域（仅 Supabase）====================
         const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';
         const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // 硅基流动 API 配置
-        const SILICONFLOW_API_KEY = 'sk-jrpiyzucdplmvqnfowrocuansnzmudfgapkbugdoaqxuhduo';  // 格式：sk-xxxxxx
-        const IMAGE_GEN_ENABLED = true;  // 是否启用AI图片生成（false则使用默认图片）
+        // ✅ AI图片生成配置（安全，通过后端）
+        const IMAGE_GEN_ENABLED = true;  // 是否启用AI图片生成
 
         // ==================== 食材扩展词库 ====================
         const ingredientExpansion = {
@@ -362,68 +359,56 @@
             }
         }
 
-        // ==================== AI图片生成（硅基流动 FLUX）====================
+        // ==================== AI图片生成（安全版 - 通过后端）====================
         async function generateRecipeImage(recipeName) {
-            if (!IMAGE_GEN_ENABLED || !SILICONFLOW_API_KEY || SILICONFLOW_API_KEY === '请填入你的硅基流动API Key') {
-                console.log('AI图片生成未启用或API Key未配置');
+            if (!IMAGE_GEN_ENABLED) {
+                console.log('AI图片生成未启用');
                 return null;
             }
 
             try {
-                console.log(`正在为《${recipeName}》生成AI图片...`);
+                console.log(`🎨 正在为《${recipeName}》生成AI图片...`);
                 
-                // 构建美食摄影提示词
-                const prompt = `Professional food photography of ${recipeName}, Chinese cuisine, appetizing, high resolution, studio lighting, top view, natural colors, delicious looking, 4k quality`;
-                
-                const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
+                // ✅ 调用自己的后端API（安全）
+                const response = await fetch('/api/generate-image', {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${SILICONFLOW_API_KEY}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        model: "black-forest-labs/FLUX.1-schnell",  // FLUX快速模型
-                        prompt: prompt,
-                        image_size: "512x512",  // 方形图片
-                        num_inference_steps: 4  // 快速生成（4步即可）
+                        recipeName: recipeName
                     })
                 });
 
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    console.error('图片生成API错误:', errorText);
+                    const errorData = await response.json();
+                    console.error('❌ 后端API错误:', errorData);
                     return null;
                 }
 
                 const data = await response.json();
                 
-                if (data.images && data.images.length > 0) {
-                    const imageUrl = data.images[0].url;
-                    console.log('✅ AI图片生成成功:', imageUrl);
+                if (data.success && data.imageUrl) {
+                    console.log('✅ AI图片生成成功:', data.imageUrl);
                     
-                    // 将AI生成的图片保存到Supabase Storage
-                    const savedUrl = await downloadAndUploadImage(imageUrl, recipeName);
-                    return savedUrl || imageUrl;
+                    // 将AI生成的图片保存到Supabase Storage（可选）
+                    const savedUrl = await downloadAndUploadImage(data.imageUrl, recipeName);
+                    return savedUrl || data.imageUrl;
                 }
                 
                 return null;
             } catch (error) {
-                console.error('AI图片生成失败:', error);
+                console.error('❌ AI图片生成失败:', error);
                 return null;
             }
         }
 
-        // 下载AI图片并上传到Supabase
         async function downloadAndUploadImage(imageUrl, recipeName) {
             try {
-                // 获取图片数据
                 const response = await fetch(imageUrl);
                 const blob = await response.blob();
-                
-                // 转换为File对象
                 const file = new File([blob], `${recipeName}.png`, { type: 'image/png' });
                 
-                // 上传到Supabase
                 const fileName = `ai-${Date.now()}-${recipeName.substring(0, 10)}.png`;
                 const filePath = `recipe-images/${fileName}`;
 
@@ -440,7 +425,7 @@
                 return publicUrl;
             } catch (error) {
                 console.error('图片保存失败:', error);
-                return imageUrl;  // 失败时返回原始URL
+                return imageUrl;
             }
         }
 
@@ -630,27 +615,25 @@
                 const recipeName = title.replace('菜名:','').trim();
                 const recipeSteps = steps.replace('做法:','').trim();
                 
-                // 2. 生成AI图片（异步）
+                // 2. 先显示结果（使用默认图片）
                 let aiImageUrl = '/images/default-chef.jpg';
                 const recipeData = {
                     name: recipeName,
                     steps: recipeSteps,
                     author: 'AI大厨',
                     img: aiImageUrl,
-                    isGeneratingImage: true  // 标记图片生成中
+                    isGeneratingImage: IMAGE_GEN_ENABLED
                 };
                 
-                // 先显示结果（使用默认图片）
                 renderResults([recipeData]);
                 resetSearchUI();
                 
-                // 后台生成图片
+                // 3. 后台生成图片
                 if (IMAGE_GEN_ENABLED) {
                     console.log('开始生成AI图片...');
                     const generatedImageUrl = await generateRecipeImage(recipeName);
                     
                     if (generatedImageUrl) {
-                        // 更新卡片中的图片
                         const imgElement = document.querySelector('#result-content .recipe-img');
                         if (imgElement) {
                             imgElement.src = generatedImageUrl;
@@ -662,7 +645,6 @@
             } catch (err) {
                 console.error('AI生成失败:', err);
                 alert("AI大厨去进货了，请稍后再试！🎨");
-            } finally {
                 resetSearchUI();
             }
         };
