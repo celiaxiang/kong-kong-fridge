@@ -1,12 +1,16 @@
-module.exports = async (req, res) => {
+// api/generate-image.js
+export default async function handler(req, res) {
+  // 1. 设置 CORS 头（允许前端跨域访问）
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
+  // 2. 处理预检请求 (OPTIONS)
   if (req.method === 'OPTIONS') {
     return res.status(200).end();
   }
 
+  // 3. 只允许 POST 请求
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -31,6 +35,9 @@ module.exports = async (req, res) => {
     const prompt = `Professional food photography of ${recipeName}, Chinese cuisine, appetizing, high resolution, studio lighting, top view, natural colors, delicious looking, 4k quality`;
 
     console.log(`正在生成图片: ${recipeName}`);
+
+    // ❌ 已删除：const fetch = (await import('node-fetch')).default;
+    // ✅ 直接使用内置 fetch：
 
     const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
@@ -78,4 +85,4 @@ module.exports = async (req, res) => {
       message: error.message
     });
   }
-};
+}
