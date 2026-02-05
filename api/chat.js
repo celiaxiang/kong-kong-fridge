@@ -1,20 +1,11 @@
-// api/chat.js (专用于生成食谱文字)
+// api/chat.js - 文本对话接口
 export default async function handler(req, res) {
-  // 1. 只允许 POST 请求
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   try {
     const { messages } = req.body;
+    const apiKey = process.env.SILICONFLOW_API_KEY; // 确保 Vercel 环境变量已配置
 
-    // 2. 从环境变量获取 SiliconFlow 的 Key
-    const apiKey = process.env.SILICONFLOW_API_KEY; 
-    if (!apiKey) {
-      return res.status(500).json({ error: '后端未配置 API Key' });
-    }
-
-    // 3. 呼叫 SiliconFlow 的对话接口 (Chat Completions)
     const response = await fetch('https://api.siliconflow.cn/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -22,9 +13,7 @@ export default async function handler(req, res) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        // ⚠️ 硅基流动的模型名称通常是 'deepseek-ai/DeepSeek-V3' 或 'deepseek-ai/DeepSeek-R1'
-        // 这里我们强制指定一个稳定的模型，或者使用前端传来的 model
-        model: "deepseek-ai/DeepSeek-V3", 
+        model: "deepseek-ai/DeepSeek-V3", // 强制使用 DeepSeek 文本模型
         messages: messages,
         temperature: 0.7,
         max_tokens: 1024
@@ -32,16 +21,14 @@ export default async function handler(req, res) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('SiliconFlow API Error:', errorText);
-      return res.status(response.status).json({ error: errorText });
+      const err = await response.text();
+      return res.status(response.status).json({ error: err });
     }
 
     const data = await response.json();
     return res.status(200).json(data);
 
   } catch (error) {
-    console.error('Server Error:', error);
-    return res.status(500).json({ error: 'Internal Server Error' });
+    return res.status(500).json({ error: error.message });
   }
 }
