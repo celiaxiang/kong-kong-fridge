@@ -32,8 +32,6 @@ module.exports = async (req, res) => {
 
     console.log(`正在生成图片: ${recipeName}`);
 
-    const fetch = (await import('node-fetch')).default;
-
     const response = await fetch('https://api.siliconflow.cn/v1/images/generations', {
       method: 'POST',
       headers: {
