@@ -1,0 +1,15 @@
+{
+  "name": "空空冰箱 Pro",
+  "short_name": "空空冰箱",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#fffaf0",
+  "theme_color": "#31572c",
+  "icons": [
+    {
+      "src": "images/icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
