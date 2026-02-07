@@ -225,14 +225,7 @@
         const SUPABASE_URL = 'https://fgtukmqapgkbyzzidjdt.supabase.co'; // ⚠️⚠️⚠️ 替换这里
         const SUPABASE_KEY = 'sb_publishable_nQuQd1sqM8iDBStL9ifG4Q_V2QLQlQ4';    // ⚠️⚠️⚠️ 替换这里
         
-        let client;
-        try {
-            if (!SUPABASE_URL || SUPABASE_URL.includes('https://fgtukmqapgkbyzzidjdt.supabase.co')) {
-                console.warn('Supabase URL 未配置，部分功能将不可用');
-            } else {
-                client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-            }
-        } catch (e) { console.error('Supabase 初始化失败:', e); }
+        const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ==================== 2. 食材扩展词库 ====================
         const ingredientExpansion = {
